@@ -109,6 +109,15 @@ class DesignerRecordController extends Controller
 
         if (! $request->user()->isAdmin()) {
             unset($data['designer_id']);
+            unset(
+                $data['current_salary'],
+                $data['proposed_raise'],
+                $data['manager_summary'],
+                $data['final_decision'],
+                $data['decision_date'],
+                $data['decision_reason'],
+                $data['next_plan']
+            );
         }
 
         $record->fill($data);
