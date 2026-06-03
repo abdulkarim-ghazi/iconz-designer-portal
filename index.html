@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iConz Designer Performance Portal</title>
+  <style>
+    :root {
+      --bg: #08090b;
+      --surface: #111317;
+      --surface-2: #171a20;
+      --surface-3: #20242b;
+      --line: rgba(255, 255, 255, .11);
+      --text: #f6f7f9;
+      --muted: #aeb4bd;
+      --soft: #d8dde3;
+      --orange: #ff7a00;
+      --amber: #ffc247;
+      --green: #2fd483;
+      --red: #ff5b5b;
+      --blue: #55a7ff;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(145deg, rgba(255, 122, 0, .12), transparent 26rem),
+        linear-gradient(180deg, #090a0c 0%, #101216 44%, #07080a 100%);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; color: inherit; border: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 18px;
+      border-left: 1px solid var(--line);
+      background: rgba(7, 8, 10, .94);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      min-height: 170px;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 122, 0, .28);
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.78)),
+        url("assets/iconz-hero.png") center / cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      direction: ltr;
+      text-align: right;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      text-shadow: 0 8px 24px rgba(0,0,0,.8);
+    }
+
+    .logo span:first-child { color: var(--orange); }
+    .logo small { color: var(--amber); }
+
+    .brand p {
+      margin: 8px 0 0;
+      max-width: 220px;
+      color: #e1e5ea;
+      font-size: 12px;
+      line-height: 1.75;
+    }
+
+    .employee-quick {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.04);
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      text-align: right;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      color: var(--text);
+      background: rgba(255, 122, 0, .1);
+      border-color: rgba(255, 122, 0, .28);
+    }
+
+    .nav b {
+      display: inline-grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      border-radius: 7px;
+      color: #141414;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      font-size: 12px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .hero p,
+    .panel p {
+      color: var(--muted);
+      line-height: 1.85;
+    }
+
+    .hero p { max-width: 940px; margin-bottom: 0; }
+
+    .hero-actions,
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      color: #121212;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      border-color: transparent;
+    }
+
+    .btn.danger {
+      color: #ffe3e3;
+      background: rgba(255,91,91,.08);
+      border-color: rgba(255,91,91,.3);
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+    .two-col { grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); align-items: start; }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+      box-shadow: 0 14px 42px rgba(0,0,0,.18);
+    }
+
+    .metric {
+      min-height: 118px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::after {
+      content: "";
+      position: absolute;
+      inset-inline-start: -30px;
+      bottom: -34px;
+      width: 98px;
+      height: 98px;
+      border-radius: 50%;
+      border: 18px solid rgba(255, 122, 0, .08);
+    }
+
+    .metric span,
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      color: var(--orange);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .panel { padding: 18px; }
+
+    .panel h2,
+    .panel h3 {
+      margin-bottom: 14px;
+      font-size: 19px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field { display: grid; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      color: #d6dbe1;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #0b0d10;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      outline: 0;
+    }
+
+    textarea { min-height: 88px; resize: vertical; }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(255,122,0,.78);
+      box-shadow: 0 0 0 3px rgba(255,122,0,.13);
+    }
+
+    .section { display: none; }
+    .section.active { display: grid; gap: 16px; }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tabs button {
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tabs button.active {
+      color: #151515;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      border-color: transparent;
+    }
+
+    .month-panel { display: none; }
+    .month-panel.active { display: block; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      color: #e0e4e8;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: right;
+    }
+
+    th {
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+      font-size: 12px;
+    }
+
+    td input,
+    td textarea,
+    td select {
+      min-width: 120px;
+      padding: 8px;
+    }
+
+    td textarea { min-height: 56px; }
+
+    .score-input {
+      max-width: 86px;
+      direction: ltr;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--soft);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge.green { color: #bff6da; border-color: rgba(47,212,131,.28); background: rgba(47,212,131,.09); }
+    .badge.gold { color: #ffe3a2; border-color: rgba(255,194,71,.32); background: rgba(255,194,71,.09); }
+    .badge.red { color: #ffd5d5; border-color: rgba(255,91,91,.34); background: rgba(255,91,91,.09); }
+    .badge.blue { color: #d2e8ff; border-color: rgba(85,167,255,.32); background: rgba(85,167,255,.09); }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,.09);
+    }
+
+    .progress i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--orange), var(--amber));
+      transition: width .25s ease;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.035);
+      line-height: 1.75;
+    }
+
+    .item strong { color: #fff; }
+    .item small { color: var(--muted); }
+
+    .empty {
+      padding: 14px;
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      text-align: center;
+    }
+
+    .helper {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,194,71,.25);
+      background: rgba(255,194,71,.07);
+      color: #ffe7ad;
+      line-height: 1.85;
+    }
+
+    .rule-box {
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(47,212,131,.075);
+      border: 1px solid rgba(47,212,131,.24);
+      color: #d7ffe9;
+      line-height: 1.85;
+    }
+
+    .toast {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      max-width: min(420px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,122,0,.36);
+      background: #121418;
+      color: #fff;
+      box-shadow: var(--shadow);
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+      z-index: 20;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .print-only { display: none; }
+
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-left: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { min-height: 145px; }
+      .metrics,
+      .two-col,
+      .three-col,
+      .hero { grid-template-columns: 1fr; }
+      .hero-actions { justify-content: stretch; }
+      .hero-actions .btn { flex: 1; }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .main, .sidebar { padding: 14px; }
+      .form-grid, .nav { grid-template-columns: 1fr; }
+      .metric { min-height: 100px; }
+      h1 { font-size: 28px; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .sidebar, .hero-actions, .actions, .tabs, .toast { display: none !important; }
+      .app { display: block; }
+      .main { padding: 0; }
+      .section { display: block !important; page-break-after: always; }
+      .card, .panel { box-shadow: none; border-color: #ccc; background: #fff; color: #111; }
+      input, textarea, select { border-color: #bbb; color: #111; background: #fff; }
+      .print-only { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo"><span>i</span>Conz <small>Portal</small></div>
+        <p>دليل عمل وتقييم المصممة خلال الفترة التجريبية بطريقة موثقة وقابلة للقياس.</p>
+      </div>
+
+      <div class="employee-quick">
+        <div class="field">
+          <label for="quickEmployee">اسم الموظفة</label>
+          <input id="quickEmployee" data-profile="employeeName" placeholder="مثال: سارة" />
+        </div>
+        <div class="field">
+          <label for="quickMonth">الشهر الحالي</label>
+          <select id="quickMonth" data-profile="currentMonth">
+            <option value="month1">الشهر الأول</option>
+            <option value="month2">الشهر الثاني</option>
+            <option value="month3">الشهر الثالث</option>
+          </select>
+        </div>
+        <div class="progress" title="متوسط التقييم"><i id="sideProgress"></i></div>
+      </div>
+
+      <nav class="nav" aria-label="أقسام البورتال">
+        <button class="active" data-section="dashboard"><span>الرئيسية</span><b>01</b></button>
+        <button data-section="profile"><span>بطاقة الموظفة</span><b>02</b></button>
+        <button data-section="plan"><span>خطة 3 أشهر</span><b>03</b></button>
+        <button data-section="weekly"><span>Scoreboard أسبوعي</span><b>04</b></button>
+        <button data-section="monthly"><span>التقييم الشهري</span><b>05</b></button>
+        <button data-section="logs"><span>السجلات والملاحظات</span><b>06</b></button>
+        <button data-section="decision"><span>قرار الزيادة</span><b>07</b></button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="hero">
+        <div>
+          <span class="eyebrow">iConz Designer Performance Portal</span>
+          <h1>بورتال تقييم المصممة خلال الفترة التجريبية</h1>
+          <p>
+            النظام يجمع بين خطة العمل، التوثيق الأسبوعي، التقييم الشهري، وسجل الأدلة حتى يكون قرار الاستمرار أو زيادة الراتب مبنياً على نتائج واضحة وليس على الانطباع.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" id="saveBtn">حفظ البيانات</button>
+          <a class="btn" href="handbook.html">دليل المصممة</a>
+          <button class="btn" id="exportBtn">تصدير JSON</button>
+          <button class="btn" id="printBtn">طباعة / PDF</button>
+          <button class="btn danger" id="clearBtn">مسح بيانات التجربة</button>
+        </div>
+      </header>
+
+      <section id="dashboard" class="section active">
+        <div class="grid metrics">
+          <div class="card metric"><span>متوسط 3 أشهر</span><strong id="metricAverage">0%</strong></div>
+          <div class="card metric"><span>تقييم الشهر الحالي</span><strong id="metricCurrent">0%</strong></div>
+          <div class="card metric"><span>أخطاء إنتاجية مؤثرة</span><strong id="metricErrors">0</strong></div>
+          <div class="card metric"><span>حالة زيادة الراتب</span><strong id="metricRaise">غير جاهز</strong></div>
+        </div>
+
+        <div class="grid two-col">
+          <div class="panel">
+            <h2>أهداف الشهر الحالي</h2>
+            <div id="currentGoals" class="list"></div>
+          </div>
+          <div class="panel">
+            <h2>قاعدة المرونة</h2>
+            <div class="rule-box">
+              طبيعة عمل iConz تحتاج مرونة عند الحالات المستعجلة، والمرونة جزء من التقييم، خصوصاً عندما يكون التأخير مؤثراً على زبون، إنتاج، تركيب، أو موعد تسليم.
+              <br><br>
+              المرونة لا تعني أن تكون الموظفة متاحة دائماً، بل تعني حس مسؤولية واستجابة مناسبة في الحالات المهمة.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>صورة الشهر من الـ Scoreboard</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الأسبوع</th>
+                  <th>المشروع</th>
+                  <th>نقطة إيجابية</th>
+                  <th>نقطة سلبية</th>
+                  <th>مرونة</th>
+                  <th>خطأ إنتاجي</th>
+                  <th>ملاحظة المدير</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardWeeklyRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="profile" class="section">
+        <div class="panel">
+          <h2>بطاقة الموظفة</h2>
+          <div class="form-grid">
+            <div class="field"><label>اسم الموظفة</label><input data-profile="employeeName" placeholder="اسم الموظفة"></div>
+            <div class="field"><label>المسمى الوظيفي</label><input data-profile="jobTitle" value="مهندسة / مصممة"></div>
+            <div class="field"><label>تاريخ المباشرة</label><input type="date" data-profile="startDate"></div>
+            <div class="field"><label>المدير المباشر</label><input data-profile="managerName" placeholder="اسم المدير"></div>
+            <div class="field"><label>مدة التجربة</label><input data-profile="trialPeriod" value="3 أشهر"></div>
+            <div class="field"><label>الراتب الحالي</label><input data-profile="currentSalary" placeholder="اختياري"></div>
+            <div class="field"><label>الزيادة المقترحة</label><input data-profile="proposedRaise" placeholder="حسب نتيجة التقييم"></div>
+            <div class="field"><label>تاريخ التقييم الثالث</label><input type="date" data-profile="thirdReviewDate"></div>
+          </div>
+        </div>
+
+        <div class="grid three-col">
+          <div class="panel">
+            <h3>فلسفة العمل</h3>
+            <p>المصممة في iConz ليست مسؤولة عن شكل التصميم فقط، بل عن قابلية التنفيذ، وضوح الملفات، متابعة المعمل، واحترام الوقت.</p>
+          </div>
+          <div class="panel">
+            <h3>ممنوعات التقييم</h3>
+            <p>لا يجوز تقييم الموظفة بناءً على موقف واحد، انطباع شخصي، مزاج يوم التقييم، أو مقارنة غير عادلة مع موظف أقدم.</p>
+          </div>
+          <div class="panel">
+            <h3>واجب المدير</h3>
+            <p>يوثق المدير مشاريع، أخطاء، نقاط تحسن، أمثلة على الالتزام والمرونة، وجودة ملف إنتاج واحد على الأقل.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="plan" class="section">
+        <div class="tabs">
+          <button class="active" data-month-tab="month1Plan">الشهر الأول</button>
+          <button data-month-tab="month2Plan">الشهر الثاني</button>
+          <button data-month-tab="month3Plan">الشهر الثالث</button>
+        </div>
+
+        <div id="month1Plan" class="month-panel active">
+          <div class="panel">
+            <h2>الشهر الأول: الفهم والالتزام بالنظام</h2>
+            <div class="grid three-col">
+              <div class="item"><strong>فهم آلية الشركة</strong><br>استلام المشروع، قراءة القياسات، معرفة المسؤوليات، وعدم البدء قبل وضوح المعلومات.</div>
+              <div class="item"><strong>جودة التصميم الأولية</strong><br>أفكار مناسبة وقابلة للتنفيذ مع مراجعة داخلية قبل الإرسال.</div>
+              <div class="item"><strong>تعلم ملفات الإنتاج</strong><br>التمييز بين ملف العرض، الإنتاج، والطباعة وتجهيز ملفات بسيطة تحت إشراف المدير.</div>
+            </div>
+            <p class="helper">الحد الأدنى المقبول: 70%. النتيجة الجيدة: 80% وما فوق.</p>
+          </div>
+        </div>
+
+        <div id="month2Plan" class="month-panel">
+          <div class="panel">
+            <h2>الشهر الثاني: تحسين الجودة وتقليل الأخطاء</h2>
+            <div class="grid three-col">
+              <div class="item"><strong>تطوير جودة التصميم</strong><br>تصاميم أكثر نضجاً ومرتبطة بهوية العميل والمواد الحقيقية.</div>
+              <div class="item"><strong>تقليل التعديلات</strong><br>طرح أسئلة صحيحة قبل البدء وتقليل سوء الفهم والاستعجال.</div>
+              <div class="item"><strong>ملفات إنتاج أوضح</strong><br>توضيح المقاسات والمواد والقص والطباعة والإضاءة والتشطيب.</div>
+            </div>
+            <p class="helper">الحد الأدنى المطلوب: 78%. النتيجة الجيدة: 82% وما فوق.</p>
+          </div>
+        </div>
+
+        <div id="month3Plan" class="month-panel">
+          <div class="panel">
+            <h2>الشهر الثالث: الاستقلالية وتحمل المسؤولية</h2>
+            <div class="grid three-col">
+              <div class="item"><strong>عمل باستقلالية</strong><br>استلام المشروع وفهمه وطلب الناقص واتخاذ القرار المناسب.</div>
+              <div class="item"><strong>ملفات إنتاج مكتملة</strong><br>ملفات واضحة ومنظمة تقلل أسئلة المعمل وتصلح للتنفيذ النهائي.</div>
+              <div class="item"><strong>متابعة ميدانية</strong><br>متابعة المعمل أو الموقع والتدخل لحل المشاكل الناتجة عن التصميم أو سوء الفهم.</div>
+            </div>
+            <p class="helper">الحد الأدنى للنظر في زيادة الراتب: 85%.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="weekly" class="section">
+        <div class="panel">
+          <h2>Scoreboard أسبوعي خفيف</h2>
+          <p>هذا الجدول يمنع نسيان التفاصيل ويحوّل التقييم الشهري إلى صورة مجمعة من أدلة أسبوعية مختصرة.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الأسبوع</th>
+                  <th>مشروع / مهمة</th>
+                  <th>نقطة إيجابية</th>
+                  <th>نقطة سلبية</th>
+                  <th>هل في مرونة؟</th>
+                  <th>هل في خطأ إنتاجي؟</th>
+                  <th>ملاحظة المدير</th>
+                </tr>
+              </thead>
+              <tbody id="weeklyRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="monthly" class="section">
+        <div class="panel">
+          <h2>التقييم الشهري الإلزامي</h2>
+          <div class="tabs">
+            <button class="active" data-eval-month="month1">الشهر الأول</button>
+            <button data-eval-month="month2">الشهر الثاني</button>
+            <button data-eval-month="month3">الشهر الثالث</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المحور</th>
+                  <th>الحد الأعلى</th>
+                  <th>الدرجة</th>
+                  <th>ملاحظات وأمثلة</th>
+                </tr>
+              </thead>
+              <tbody id="evaluationRows"></tbody>
+              <tfoot>
+                <tr>
+                  <th>المجموع</th>
+                  <th>/100</th>
+                  <th id="evaluationTotal">0</th>
+                  <th id="evaluationMeaning">لم يبدأ التقييم</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>أسئلة إلزامية على المدير</h2>
+          <div class="form-grid" id="managerQuestions"></div>
+        </div>
+      </section>
+
+      <section id="logs" class="section">
+        <div class="grid two-col">
+          <div class="panel">
+            <h2>إضافة ملاحظة أو دليل</h2>
+            <div class="form-grid">
+              <div class="field"><label>النوع</label><select id="logType"><option>نقطة إيجابية</option><option>نقطة سلبية</option><option>خطأ إنتاجي</option><option>مشروع يثبت التطور</option><option>إنذار تطويري</option></select></div>
+              <div class="field"><label>المشروع</label><input id="logProject" placeholder="اسم المشروع أو المهمة"></div>
+              <div class="field full"><label>الملاحظة</label><textarea id="logNote" placeholder="اكتب مثالاً واضحاً وأثره على العمل"></textarea></div>
+              <div class="field"><label>التأثير</label><select id="logImpact"><option>منخفض</option><option>متوسط</option><option>مرتفع</option></select></div>
+              <div class="field"><label>التاريخ</label><input id="logDate" type="date"></div>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="addLogBtn">إضافة للسجل</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>السجلات</h2>
+            <div id="logList" class="list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="decision" class="section">
+        <div class="grid two-col">
+          <div class="panel">
+            <h2>قرار نهاية الشهر الثالث</h2>
+            <div id="raiseDecision" class="rule-box"></div>
+            <div class="form-grid" style="margin-top:14px">
+              <div class="field"><label>قرار الإدارة</label><select data-decision="finalDecision"><option>لم يتم اتخاذ القرار</option><option>زيادة راتب كاملة حسب الاتفاق</option><option>زيادة جزئية مع متابعة شهر إضافي</option><option>تأجيل الزيادة مع خطة تطوير واضحة</option><option>عدم الاستمرار</option></select></div>
+              <div class="field"><label>تاريخ القرار</label><input type="date" data-decision="decisionDate"></div>
+              <div class="field full"><label>مبررات القرار</label><textarea data-decision="decisionReason" placeholder="يجب ربط القرار بالنتائج والأمثلة المسجلة"></textarea></div>
+              <div class="field full"><label>خطة تطوير الشهر القادم</label><textarea data-decision="nextPlan" placeholder="نقاط واضحة ومطلوبة للتحسين"></textarea></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>شروط النظر في زيادة الراتب</h2>
+            <div class="list" id="raiseChecklist"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "iconzDesignerPerformancePortal.v1";
+
+    const criteria = [
+      ["designQuality", "جودة التصميم والإبداع", 15],
+      ["details", "دقة التفاصيل والمراجعة", 10],
+      ["feasibility", "قابلية التصميم للتنفيذ", 15],
+      ["speed", "سرعة الإنجاز والالتزام بالمواعيد", 10],
+      ["understanding", "فهم متطلبات المشروع وتقليل التعديلات", 10],
+      ["productionFiles", "تجهيز ملفات الإنتاج والطباعة", 15],
+      ["followup", "المتابعة مع المعمل والموقع", 10],
+      ["coordination", "التنسيق مع الأقسام", 5],
+      ["flexibility", "المرونة والاستجابة", 10]
+    ];
+
+    const managerQuestions = [
+      "ما أفضل شيء قامت به الموظفة هذا الشهر؟",
+      "ما أكبر نقطة ضعف ظهرت هذا الشهر؟",
+      "هل الأخطاء بسبب إهمال، نقص خبرة، نقص معلومات، أم ضغط وقت؟",
+      "هل كان يمكن تجنب الأخطاء بالمراجعة؟",
+      "هل ملفات الإنتاج كانت واضحة للمعمل؟",
+      "هل المصممة تتابع المشروع بعد تسليم التصميم؟",
+      "هل أظهرت مرونة عند وجود ضغط أو طلب مستعجل؟",
+      "هل تطورت مقارنة بالشهر السابق؟",
+      "ما المطلوب منها في الشهر القادم؟"
+    ];
+
+    const goals = {
+      month1: [
+        "فهم آلية استلام المشاريع والقياسات والمسؤوليات.",
+        "الالتزام بعدم البدء قبل وضوح المعلومات الأساسية.",
+        "تقديم تصاميم أولية قابلة للتنفيذ وليست جميلة فقط.",
+        "تعلم أساسيات ملفات الإنتاج والطباعة تحت إشراف المدير."
+      ],
+      month2: [
+        "رفع جودة التصميم وربطه بهوية العميل والمواد الحقيقية.",
+        "تقليل التعديلات الناتجة عن سوء الفهم أو الاستعجال.",
+        "تجهيز ملفات إنتاج أوضح ومفهومة للمعمل.",
+        "التواصل مع الأقسام ومتابعة ملاحظات التنفيذ."
+      ],
+      month3: [
+        "إدارة المهام بدرجة أعلى من الاستقلالية.",
+        "تجهيز ملفات إنتاج مكتملة وقابلة للتنفيذ النهائي.",
+        "متابعة المشروع من التصميم حتى التنفيذ والتسليم.",
+        "إظهار مرونة واضحة مع ضغط المشاريع والحالات المستعجلة."
+      ]
+    };
+
+    const defaultState = () => ({
+      profile: {
+        employeeName: "",
+        jobTitle: "مهندسة / مصممة",
+        startDate: "",
+        managerName: "",
+        trialPeriod: "3 أشهر",
+        currentSalary: "",
+        proposedRaise: "حسب نتيجة التقييم",
+        thirdReviewDate: "",
+        currentMonth: "month1"
+      },
+      weekly: ["Week 1", "Week 2", "Week 3", "Week 4"].map(week => ({
+        week,
+        project: "",
+        positive: "",
+        negative: "",
+        flexibility: "",
+        productionError: "",
+        managerNote: ""
+      })),
+      evaluations: {
+        month1: emptyEvaluation(),
+        month2: emptyEvaluation(),
+        month3: emptyEvaluation()
+      },
+      logs: [],
+      decision: {
+        finalDecision: "لم يتم اتخاذ القرار",
+        decisionDate: "",
+        decisionReason: "",
+        nextPlan: ""
+      }
+    });
+
+    function emptyEvaluation() {
+      return {
+        scores: Object.fromEntries(criteria.map(([key]) => [key, ""])),
+        notes: Object.fromEntries(criteria.map(([key]) => [key, ""])),
+        answers: managerQuestions.map(() => "")
+      };
+    }
+
+    let state = loadState();
+    let activeEvalMonth = state.profile.currentMonth || "month1";
+
+    function $(id) { return document.getElementById(id); }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return saved ? mergeState(defaultState(), saved) : defaultState();
+      } catch {
+        return defaultState();
+      }
+    }
+
+    function mergeState(base, saved) {
+      return {
+        ...base,
+        ...saved,
+        profile: { ...base.profile, ...(saved.profile || {}) },
+        decision: { ...base.decision, ...(saved.decision || {}) },
+        evaluations: {
+          month1: mergeEvaluation(base.evaluations.month1, saved.evaluations?.month1),
+          month2: mergeEvaluation(base.evaluations.month2, saved.evaluations?.month2),
+          month3: mergeEvaluation(base.evaluations.month3, saved.evaluations?.month3)
+        },
+        weekly: Array.isArray(saved.weekly) ? base.weekly.map((row, index) => ({ ...row, ...(saved.weekly[index] || {}) })) : base.weekly,
+        logs: Array.isArray(saved.logs) ? saved.logs : []
+      };
+    }
+
+    function mergeEvaluation(base, saved = {}) {
+      return {
+        scores: { ...base.scores, ...(saved.scores || {}) },
+        notes: { ...base.notes, ...(saved.notes || {}) },
+        answers: managerQuestions.map((_, index) => saved.answers?.[index] || "")
+      };
+    }
+
+    function persist(silent = false) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+      if (!silent) toast("تم حفظ البيانات محلياً في هذا المتصفح.");
+    }
+
+    function toast(message) {
+      const node = $("toast");
+      node.textContent = message;
+      node.classList.add("show");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => node.classList.remove("show"), 2400);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function score(monthKey) {
+      const evaluation = state.evaluations[monthKey];
+      return criteria.reduce((sum, [key, , max]) => {
+        const value = Number(evaluation.scores[key] || 0);
+        return sum + Math.min(Math.max(value, 0), max);
+      }, 0);
+    }
+
+    function averageScore() {
+      const scores = ["month1", "month2", "month3"].map(score);
+      const filled = scores.filter(value => value > 0);
+      if (!filled.length) return 0;
+      return Math.round(filled.reduce((sum, value) => sum + value, 0) / filled.length);
+    }
+
+    function scoreMeaning(value) {
+      if (value >= 90) return "أداء ممتاز وجاهزية عالية";
+      if (value >= 85) return "مؤهل للزيادة مع متابعة تطوير";
+      if (value >= 80) return "أداء جيد جداً ومؤهل للتطور";
+      if (value >= 70) return "أداء مقبول مع ملاحظات واضحة";
+      if (value >= 60) return "أداء ضعيف ويحتاج خطة تصحيح";
+      return "غير مناسب للاستمرار بنفس المستوى";
+    }
+
+    function productionErrorCount() {
+      const weeklyErrors = state.weekly.filter(row => row.productionError === "نعم").length;
+      const logErrors = state.logs.filter(log => log.type === "خطأ إنتاجي" && log.impact !== "منخفض").length;
+      return weeklyErrors + logErrors;
+    }
+
+    function raiseStatus() {
+      const avg = averageScore();
+      const third = score("month3");
+      const errors = productionErrorCount();
+      if (avg >= 80 && third >= 85 && errors === 0) return "جاهز";
+      if (avg >= 80 && third >= 85) return "بحاجة مراجعة أخطاء";
+      if (third >= 80) return "متابعة";
+      return "غير جاهز";
+    }
+
+    function renderProfileFields() {
+      document.querySelectorAll("[data-profile]").forEach(input => {
+        input.value = state.profile[input.dataset.profile] || "";
+      });
+    }
+
+    function renderWeekly() {
+      const rowHtml = state.weekly.map((row, index) => `
+        <tr>
+          <td><strong>${row.week}</strong></td>
+          <td><input data-weekly="${index}:project" value="${escapeHtml(row.project)}" placeholder="اسم المشروع"></td>
+          <td><textarea data-weekly="${index}:positive" placeholder="نقطة إيجابية">${escapeHtml(row.positive)}</textarea></td>
+          <td><textarea data-weekly="${index}:negative" placeholder="نقطة سلبية">${escapeHtml(row.negative)}</textarea></td>
+          <td><select data-weekly="${index}:flexibility">
+            ${optionSet(["", "نعم", "جزئياً", "لا"], row.flexibility)}
+          </select></td>
+          <td><select data-weekly="${index}:productionError">
+            ${optionSet(["", "لا", "نعم"], row.productionError)}
+          </select></td>
+          <td><textarea data-weekly="${index}:managerNote" placeholder="ملاحظة مختصرة">${escapeHtml(row.managerNote)}</textarea></td>
+        </tr>
+      `).join("");
+
+      $("weeklyRows").innerHTML = rowHtml;
+      $("dashboardWeeklyRows").innerHTML = state.weekly.map(row => `
+        <tr>
+          <td>${row.week}</td>
+          <td>${escapeHtml(row.project || "-")}</td>
+          <td>${escapeHtml(row.positive || "-")}</td>
+          <td>${escapeHtml(row.negative || "-")}</td>
+          <td><span class="badge ${row.flexibility === "نعم" ? "green" : row.flexibility === "لا" ? "red" : "gold"}">${escapeHtml(row.flexibility || "-")}</span></td>
+          <td><span class="badge ${row.productionError === "نعم" ? "red" : "green"}">${escapeHtml(row.productionError || "-")}</span></td>
+          <td>${escapeHtml(row.managerNote || "-")}</td>
+        </tr>
+      `).join("");
+    }
+
+    function optionSet(options, selected) {
+      return options.map(option => `<option value="${escapeHtml(option)}" ${option === selected ? "selected" : ""}>${option || "اختر"}</option>`).join("");
+    }
+
+    function renderEvaluation() {
+      const evaluation = state.evaluations[activeEvalMonth];
+      $("evaluationRows").innerHTML = criteria.map(([key, label, max]) => `
+        <tr>
+          <td><strong>${label}</strong></td>
+          <td>/${max}</td>
+          <td><input class="score-input" type="number" min="0" max="${max}" data-score="${key}" value="${escapeHtml(evaluation.scores[key])}"></td>
+          <td><textarea data-note="${key}" placeholder="اكتب مثالاً أو ملاحظة واضحة">${escapeHtml(evaluation.notes[key])}</textarea></td>
+        </tr>
+      `).join("");
+
+      const total = score(activeEvalMonth);
+      $("evaluationTotal").textContent = total;
+      $("evaluationMeaning").textContent = scoreMeaning(total);
+
+      $("managerQuestions").innerHTML = managerQuestions.map((question, index) => `
+        <div class="field ${index === 8 ? "full" : ""}">
+          <label>${index + 1}. ${question}</label>
+          <textarea data-answer="${index}" placeholder="إجابة المدير المباشر">${escapeHtml(evaluation.answers[index])}</textarea>
+        </div>
+      `).join("");
+    }
+
+    function renderDashboard() {
+      const currentMonth = state.profile.currentMonth || "month1";
+      $("metricAverage").textContent = `${averageScore()}%`;
+      $("metricCurrent").textContent = `${score(currentMonth)}%`;
+      $("metricErrors").textContent = productionErrorCount();
+      $("metricRaise").textContent = raiseStatus();
+      $("sideProgress").style.width = `${averageScore()}%`;
+      $("currentGoals").innerHTML = goals[currentMonth].map(goal => `<div class="item">${escapeHtml(goal)}</div>`).join("");
+    }
+
+    function renderLogs() {
+      $("logList").innerHTML = state.logs.length
+        ? state.logs.map(log => `
+          <div class="item">
+            <span class="badge ${log.type === "خطأ إنتاجي" ? "red" : log.type === "نقطة إيجابية" ? "green" : "gold"}">${escapeHtml(log.type)}</span>
+            <strong>${escapeHtml(log.project || "بدون مشروع")}</strong><br>
+            ${escapeHtml(log.note)}
+            <br><small>${escapeHtml(log.date || "")} - تأثير: ${escapeHtml(log.impact || "")}</small>
+          </div>
+        `).join("")
+        : `<div class="empty">لا توجد ملاحظات مسجلة بعد.</div>`;
+    }
+
+    function renderDecision() {
+      const avg = averageScore();
+      const third = score("month3");
+      const errors = productionErrorCount();
+      const ready = avg >= 80 && third >= 85 && errors === 0;
+      $("raiseDecision").innerHTML = ready
+        ? "الموظفة مؤهلة للنظر في زيادة الراتب بناءً على متوسط التقييم، نتيجة الشهر الثالث، وعدم وجود أخطاء إنتاجية مؤثرة."
+        : "الزيادة ليست تلقائية. يجب مراجعة الشروط والـ Scoreboard والسجلات قبل اتخاذ القرار النهائي.";
+
+      const checks = [
+        [`متوسط 3 أشهر لا يقل عن 80%`, avg >= 80, `${avg}%`],
+        [`تقييم الشهر الثالث لا يقل عن 85%`, third >= 85, `${third}%`],
+        [`لا توجد أخطاء إنتاجية مؤثرة أو متكررة`, errors === 0, `${errors}`],
+        [`وجود توثيق أسبوعي كافٍ`, state.weekly.some(row => row.project || row.managerNote), "Scoreboard"],
+        [`قرار المدير مبني على أمثلة مكتوبة`, state.logs.length > 0 || managerQuestions.some((_, i) => state.evaluations.month3.answers[i]), "أدلة"]
+      ];
+      $("raiseChecklist").innerHTML = checks.map(([label, pass, value]) => `
+        <div class="item">
+          <span class="badge ${pass ? "green" : "red"}">${pass ? "محقق" : "غير مكتمل"}</span>
+          <strong>${label}</strong><br><small>${value}</small>
+        </div>
+      `).join("");
+
+      document.querySelectorAll("[data-decision]").forEach(input => {
+        input.value = state.decision[input.dataset.decision] || "";
+      });
+    }
+
+    function render() {
+      renderProfileFields();
+      renderWeekly();
+      renderEvaluation();
+      renderDashboard();
+      renderLogs();
+      renderDecision();
+      document.querySelectorAll("[data-eval-month]").forEach(button => {
+        button.classList.toggle("active", button.dataset.evalMonth === activeEvalMonth);
+      });
+    }
+
+    document.querySelectorAll(".nav button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav button").forEach(item => item.classList.remove("active"));
+        document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+        button.classList.add("active");
+        $(button.dataset.section).classList.add("active");
+      });
+    });
+
+    document.querySelectorAll("[data-month-tab]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-month-tab]").forEach(item => item.classList.remove("active"));
+        document.querySelectorAll(".month-panel").forEach(panel => panel.classList.remove("active"));
+        button.classList.add("active");
+        $(button.dataset.monthTab).classList.add("active");
+      });
+    });
+
+    document.querySelectorAll("[data-eval-month]").forEach(button => {
+      button.addEventListener("click", () => {
+        activeEvalMonth = button.dataset.evalMonth;
+        renderEvaluation();
+        document.querySelectorAll("[data-eval-month]").forEach(item => item.classList.toggle("active", item === button));
+      });
+    });
+
+    document.addEventListener("input", event => {
+      const target = event.target;
+      if (target.dataset.profile) {
+        state.profile[target.dataset.profile] = target.value;
+        if (target.dataset.profile === "currentMonth") activeEvalMonth = target.value;
+        persist(true);
+      }
+      if (target.dataset.weekly) {
+        const [index, key] = target.dataset.weekly.split(":");
+        state.weekly[Number(index)][key] = target.value;
+        persist(true);
+      }
+      if (target.dataset.score) {
+        const max = criteria.find(([key]) => key === target.dataset.score)[2];
+        const value = target.value === "" ? "" : Math.min(Math.max(Number(target.value), 0), max);
+        state.evaluations[activeEvalMonth].scores[target.dataset.score] = value;
+        persist(true);
+      }
+      if (target.dataset.note) {
+        state.evaluations[activeEvalMonth].notes[target.dataset.note] = target.value;
+        persist(true);
+      }
+      if (target.dataset.answer) {
+        state.evaluations[activeEvalMonth].answers[Number(target.dataset.answer)] = target.value;
+        persist(true);
+      }
+      if (target.dataset.decision) {
+        state.decision[target.dataset.decision] = target.value;
+        persist(true);
+      }
+    });
+
+    $("saveBtn").addEventListener("click", () => persist(false));
+    $("printBtn").addEventListener("click", () => window.print());
+    $("clearBtn").addEventListener("click", () => {
+      if (!confirm("هل تريد مسح البيانات المحفوظة في هذا المتصفح؟")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = defaultState();
+      activeEvalMonth = state.profile.currentMonth;
+      render();
+      toast("تم مسح البيانات المحلية.");
+    });
+    $("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `iconz-designer-performance-${Date.now()}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast("تم تجهيز ملف JSON.");
+    });
+
+    $("addLogBtn").addEventListener("click", () => {
+      const note = $("logNote").value.trim();
+      if (!note) return toast("اكتب الملاحظة قبل إضافتها للسجل.");
+      state.logs.unshift({
+        id: crypto.randomUUID(),
+        type: $("logType").value,
+        project: $("logProject").value.trim(),
+        note,
+        impact: $("logImpact").value,
+        date: $("logDate").value || new Date().toISOString().slice(0, 10)
+      });
+      $("logProject").value = "";
+      $("logNote").value = "";
+      persist(false);
+    });
+
+    render();
+  </script>
+</body>
+</html>

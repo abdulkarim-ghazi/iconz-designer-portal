@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دليل تطوير المصممة داخل iConz</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --ink: #15171a;
+      --muted: #68707b;
+      --line: #dfe3e8;
+      --card: #ffffff;
+      --dark: #0d0f12;
+      --orange: #ff7a00;
+      --amber: #ffc247;
+      --green: #159b62;
+      --red: #c93f3f;
+      --blue: #2d6cdf;
+      --shadow: 0 16px 42px rgba(17, 20, 24, .09);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 122, 0, .09), transparent 24rem),
+        var(--bg);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; border: 0; color: inherit; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 18px;
+      background: var(--dark);
+      color: #fff;
+      border-left: 1px solid rgba(255,255,255,.1);
+    }
+
+    .brand {
+      padding: 18px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.86)),
+        url("assets/iconz-hero.png") center / cover;
+      border: 1px solid rgba(255, 122, 0, .35);
+    }
+
+    .brand h1 {
+      margin: 0;
+      direction: ltr;
+      text-align: right;
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .brand h1 span { color: var(--orange); }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: #e4e8ed;
+      font-size: 12px;
+      line-height: 1.75;
+    }
+
+    .search {
+      margin: 14px 0;
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      outline: 0;
+    }
+
+    .search input:focus {
+      border-color: rgba(255, 122, 0, .8);
+      box-shadow: 0 0 0 3px rgba(255, 122, 0, .14);
+    }
+
+    .nav {
+      display: grid;
+      gap: 7px;
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 12px;
+      color: #c9ced5;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      text-align: right;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      color: #fff;
+      background: rgba(255, 122, 0, .12);
+      border-color: rgba(255, 122, 0, .34);
+    }
+
+    .nav b {
+      display: inline-grid;
+      place-items: center;
+      min-width: 25px;
+      height: 25px;
+      border-radius: 7px;
+      color: #161616;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      font-size: 12px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 26px;
+    }
+
+    .hero {
+      padding: 24px;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      color: #fff;
+      background:
+        linear-gradient(90deg, rgba(13,15,18,.96), rgba(13,15,18,.72)),
+        url("assets/iconz-hero.png") center / cover;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #ffdfaa;
+      background: rgba(255, 122, 0, .14);
+      border: 1px solid rgba(255, 122, 0, .28);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    h2, h3, p { margin-top: 0; }
+
+    .hero h2 {
+      margin-bottom: 10px;
+      max-width: 850px;
+      font-size: clamp(28px, 5vw, 50px);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .hero p {
+      margin-bottom: 0;
+      max-width: 850px;
+      color: #e9edf2;
+      line-height: 1.9;
+      font-size: 16px;
+    }
+
+    .section {
+      display: none;
+      animation: fade .18s ease;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes fade {
+      from { opacity: .4; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card {
+      padding: 18px;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .card p,
+    .lead {
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .lead {
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+
+    .checklist,
+    .number-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li,
+    .number-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 11px 12px;
+      border-radius: 8px;
+      background: #f8f9fb;
+      border: 1px solid #e8ebef;
+      line-height: 1.75;
+    }
+
+    .number-list { counter-reset: item; }
+
+    .number-list li::before {
+      counter-increment: item;
+      content: counter(item);
+      display: inline-grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      border-radius: 7px;
+      color: #111;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      font-size: 12px;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .checklist li::before {
+      content: "✓";
+      display: inline-grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      border-radius: 7px;
+      color: #fff;
+      background: var(--green);
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .warning li::before { content: "!"; background: var(--red); }
+
+    .note {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 122, 0, .25);
+      background: rgba(255, 122, 0, .08);
+      line-height: 1.9;
+      color: #5c3a09;
+    }
+
+    .quote {
+      padding: 18px;
+      border-radius: 8px;
+      background: #0f1318;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 18px;
+      line-height: 1.9;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .step {
+      padding: 14px;
+      min-height: 108px;
+      border-radius: 8px;
+      color: #fff;
+      background: #151a20;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .step b {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 9px;
+      border-radius: 7px;
+      color: #111;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      font-size: 14px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f8f9fb;
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(45, 108, 223, .09);
+      color: var(--blue);
+      border: 1px solid rgba(45, 108, 223, .18);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hidden { display: none !important; }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid rgba(255,255,255,.28);
+      color: #111;
+      font-weight: 900;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      border-color: transparent;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-left: 0;
+      }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .two, .three, .workflow { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .main, .sidebar { padding: 14px; }
+      .nav { grid-template-columns: 1fr; }
+      .hero, .card { padding: 16px; }
+      .hero h2 { font-size: 30px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .sidebar, .top-actions { display: none; }
+      .layout { display: block; }
+      .main { padding: 0; }
+      .hero { color: #111; background: #fff; box-shadow: none; border: 1px solid #ddd; }
+      .hero p { color: #333; }
+      .section { display: block !important; page-break-after: always; }
+      .card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1><span>i</span>Conz Handbook</h1>
+        <p>دليل مساعد للمصممة لفهم المطلوب أثناء العمل اليومي خلال أول 3 أشهر.</p>
+      </div>
+
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="ابحثي داخل الدليل..." />
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="active" data-section="intro"><span>البداية</span><b>01</b></button>
+        <button data-section="expectations"><span>توقعات الشركة</span><b>02</b></button>
+        <button data-section="successful"><span>المصممة الناجحة</span><b>03</b></button>
+        <button data-section="execution"><span>قابلية التنفيذ</span><b>04</b></button>
+        <button data-section="workflow"><span>خطوات العمل</span><b>05</b></button>
+        <button data-section="flexibility"><span>المرونة</span><b>06</b></button>
+        <button data-section="positive"><span>نقاط إيجابية</span><b>07</b></button>
+        <button data-section="negative"><span>نقاط سلبية</span><b>08</b></button>
+        <button data-section="months"><span>خطة 3 أشهر</span><b>09</b></button>
+        <button data-section="evaluation"><span>التقييم والزيادة</span><b>10</b></button>
+        <button data-section="rights"><span>الحقوق والواجبات</span><b>11</b></button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="hero">
+        <span class="eyebrow">دليل تطوير المصممة داخل iConz</span>
+        <h2>مرجع سريع وواضح يساعدك تفهمين المطلوب وتشتغلين بثقة</h2>
+        <p>
+          هذا الدليل ليس للتعقيد أو الضغط. هو خريطة عملية تساعدك على فهم طريقة النجاح داخل iConz: من استلام المشروع، إلى التصميم، إلى ملفات الإنتاج، ثم المتابعة حتى النتيجة النهائية.
+        </p>
+        <div class="top-actions">
+          <button class="btn primary" id="printBtn">طباعة / PDF</button>
+          <a class="btn" href="index.html">فتح بورتال التقييم</a>
+          <a class="btn" href="iconz-designer-portal.zip" download>تنزيل المشروع كامل</a>
+        </div>
+      </header>
+
+      <section id="intro" class="section active" data-search="مقدمة أهلاً iConz ثلاثة أشهر عمل تطوير زيادة راتب منظومة تصميم إنتاج تصنيع تركيب تسليم">
+        <div class="grid two">
+          <div class="card">
+            <h3>أهلاً بك في iConz</h3>
+            <p class="lead">
+              الهدف من الدليل أن تعرفي ما المطلوب منك، ما الذي يساعدك على التطور، وكيف تصبحين مؤهلة للحصول على زيادة بعد فترة التقييم.
+            </p>
+            <div class="quote">كلما فهمتِ منظومة العمل بشكل أسرع، كلما أصبح تطورك وفرصتك بالزيادة أقوى.</div>
+          </div>
+          <div class="card">
+            <h3>الفكرة الأساسية</h3>
+            <p>
+              المصممة ليست مسؤولة فقط عن تصميم جميل، بل عن فهم طلب العميل، قابلية التنفيذ، وضوح ملفات الإنتاج، والتعاون مع الفريق حتى التسليم النهائي.
+            </p>
+            <div class="note">التصميم الناجح داخل iConz هو تصميم جميل، واضح، قابل للتصنيع، مفهوم للمعمل، ومناسب لموعد التسليم.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="expectations" class="section" data-search="توقعات الشركة جودة تصميم تفاصيل عميل مواعيد ملفات إنتاج طباعة تعاون مسؤولية مرونة أخطاء">
+        <div class="card">
+          <h3>ما الذي تتوقعه الشركة منك؟</h3>
+          <p class="lead">خلال فترة التقييم، المطلوب أن تظهري تطوراً واضحاً في هذه المحاور:</p>
+          <ul class="number-list">
+            <li>جودة التصميم.</li>
+            <li>دقة التفاصيل.</li>
+            <li>فهم طلب العميل قبل البدء.</li>
+            <li>الالتزام بالمواعيد والتحديث عند التأخير.</li>
+            <li>تجهيز ملفات واضحة للإنتاج والطباعة.</li>
+            <li>التعاون مع المدير والأقسام الأخرى.</li>
+            <li>متابعة المشروع عند الحاجة.</li>
+            <li>تحمل المسؤولية.</li>
+            <li>المرونة في الحالات المستعجلة.</li>
+            <li>التعلم من الأخطاء وعدم تكرارها.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="successful" class="section" data-search="مصممة ناجحة تفهم تسأل قابل تنفيذ مواد قياسات وقت تكلفة مراجعة ملفات إنتاج متابعة ملاحظات">
+        <div class="card">
+          <h3>ما معنى المصممة الناجحة في iConz؟</h3>
+          <div class="grid two">
+            <ul class="checklist">
+              <li>تفهم المطلوب قبل أن تبدأ.</li>
+              <li>تسأل عندما تكون المعلومات ناقصة.</li>
+              <li>تصمم شيئاً جميلاً وقابلاً للتنفيذ.</li>
+              <li>تراعي المواد، القياسات، الوقت، والتكلفة.</li>
+              <li>تراجع عملها قبل إرساله.</li>
+            </ul>
+            <ul class="checklist">
+              <li>تجهز ملفات إنتاج مفهومة.</li>
+              <li>تتابع مع الفريق عند الحاجة.</li>
+              <li>لا تترك المشروع بمجرد إرسال التصميم.</li>
+              <li>تتقبل الملاحظات وتتطور منها.</li>
+              <li>تعرف أن نجاح المشروع أهم من مجرد إنهاء المهمة.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="execution" class="section" data-search="قابل للتنفيذ معمل موقع قياسات مواد سماكات تثبيت إضاءة طباعة تكلفة تسليم">
+        <div class="card">
+          <h3>ماذا يعني أن التصميم قابل للتنفيذ؟</h3>
+          <p class="lead">التصميم القابل للتنفيذ هو الذي يمكن تحويله إلى واقع داخل المعمل أو الموقع بدون مشاكل كبيرة.</p>
+          <ul class="number-list">
+            <li>هل المقاسات صحيحة؟</li>
+            <li>هل المواد منطقية ومتوفرة؟</li>
+            <li>هل السماكات مناسبة؟</li>
+            <li>هل طريقة التثبيت واضحة؟</li>
+            <li>هل الإضاءة قابلة للتنفيذ؟</li>
+            <li>هل الطباعة واضحة؟</li>
+            <li>هل يوجد جزء صعب أو غير واقعي؟</li>
+            <li>هل يمكن للمعمل فهم التصميم؟</li>
+            <li>هل التصميم مناسب لوقت التسليم؟</li>
+            <li>هل التكلفة منطقية مقارنة بطلب العميل؟</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="workflow" class="section" data-search="خطوات العمل استلام مشروع تصميم إرسال ملف إنتاج تسليم متابعة مراجعة شعار ألوان نصوص مواد إضاءة">
+        <div class="workflow">
+          <div class="step"><b>1</b><strong>استلام المشروع</strong><br>تأكدي من المعلومات الأساسية قبل البدء.</div>
+          <div class="step"><b>2</b><strong>أثناء التصميم</strong><br>وازني بين الجمال وقابلية التنفيذ.</div>
+          <div class="step"><b>3</b><strong>قبل الإرسال</strong><br>راجعي المقاسات والشعار والنصوص.</div>
+          <div class="step"><b>4</b><strong>ملفات الإنتاج</strong><br>اكتبي ما يحتاجه المعمل بوضوح.</div>
+          <div class="step"><b>5</b><strong>بعد التسليم</strong><br>تابعي عند الحاجة ولا تتركي المشروع مفتوحاً.</div>
+        </div>
+
+        <div class="grid two">
+          <div class="card">
+            <h3>عند استلام المشروع</h3>
+            <ul class="checklist">
+              <li>اسم العميل ونوع المشروع.</li>
+              <li>القياسات والصور أو الموقع.</li>
+              <li>المطلوب من التصميم والموعد النهائي.</li>
+              <li>المواد المطلوبة إن وجدت.</li>
+              <li>الشعار أو الهوية البصرية.</li>
+              <li>هل المشروع عادي أم مستعجل؟</li>
+              <li>من هو المسؤول عن المتابعة؟</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>قبل إرسال التصميم</h3>
+            <ul class="checklist">
+              <li>المقاسات والنسب.</li>
+              <li>الشعار والألوان والنصوص.</li>
+              <li>المواد وأماكن الطباعة.</li>
+              <li>أماكن الإضاءة وطريقة التثبيت.</li>
+              <li>الأخطاء الإملائية.</li>
+              <li>هل التصميم مفهوم لمن سيراه؟</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>أثناء التصميم</h3>
+            <ul class="checklist">
+              <li>الفكرة والشكل العام.</li>
+              <li>تناسب التصميم مع البراند.</li>
+              <li>دقة المقاسات.</li>
+              <li>قابلية التنفيذ وسهولة الفهم.</li>
+              <li>عدم المبالغة بتفاصيل يصعب تنفيذها بدون داعي.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>عند تجهيز ملفات الإنتاج</h3>
+            <ul class="checklist">
+              <li>القياسات النهائية ونوع المادة.</li>
+              <li>السماكات وأماكن القص.</li>
+              <li>أماكن الطباعة والإضاءة.</li>
+              <li>ملاحظات التركيب.</li>
+              <li>اسم المشروع أو الكود.</li>
+              <li>النسخة النهائية المعتمدة.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="flexibility" class="section" data-search="مرونة حالات مستعجلة زبائن مواعيد إنتاج تركيب معارض رد تحديث تعاون ضغط مسؤولية">
+        <div class="grid two">
+          <div class="card">
+            <h3>ما المقصود بالمرونة؟</h3>
+            <ul class="checklist">
+              <li>أن تردي عند وجود أمر مهم.</li>
+              <li>أن تعطي تحديثاً واضحاً إذا لم تستطيعي العمل فوراً.</li>
+              <li>أن تتعاوني مع الفريق عندما يكون هناك ضغط.</li>
+              <li>أن تفهمي أن بعض المشاريع لا تنتظر اليوم التالي.</li>
+              <li>أن تساعدي في حل المشكلة إذا كان الأمر متعلقاً بتصميمك أو ملفك.</li>
+              <li>أن يكون لديك حس مسؤولية تجاه المشروع والفريق.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>المرونة لا تعني</h3>
+            <ul class="checklist warning">
+              <li>أن تكوني متاحة 24 ساعة.</li>
+              <li>أن تعملي دائماً خارج وقت الدوام.</li>
+              <li>أن يتم استغلال وقتك الشخصي.</li>
+              <li>أن تكون كل الطلبات خارج الدوام طبيعية.</li>
+            </ul>
+            <div class="note" style="margin-top:14px">
+              في الحالات المهمة والمستعجلة، تتوقع الشركة تعاوناً واستجابة بمستوى يناسب أهمية الموقف.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="positive" class="section" data-search="نقاط إيجابية تسليم وقت أخطاء مراجعة أسئلة تطور ملفات إنتاج تعاون معمل استجابة مسؤولية حلول">
+        <div class="card">
+          <h3>كيف تحصلين على نقاط إيجابية؟</h3>
+          <ul class="number-list">
+            <li>تسلمين العمل في الوقت المتفق عليه.</li>
+            <li>تقللين الأخطاء.</li>
+            <li>تراجعين ملفاتك قبل التسليم.</li>
+            <li>تسألين الأسئلة الصحيحة قبل البدء.</li>
+            <li>تتطورين من شهر إلى شهر.</li>
+            <li>تجهزين ملفات إنتاج أوضح.</li>
+            <li>تتعاونين مع المعمل والإنتاج.</li>
+            <li>تستجيبين في الحالات المستعجلة.</li>
+            <li>تتحملين مسؤولية الأخطاء وتعالجينها.</li>
+            <li>تقدمين حلولاً وليس فقط تنفذين المطلوب حرفياً.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="negative" class="section" data-search="سلبي تقييم عدم مراجعة أخطاء قياس شعار نصوص غير قابل تنفيذ ملف ناقص تأخير عدم رد تكرار خطأ">
+        <div class="card">
+          <h3>ما الذي يؤثر سلباً على تقييمك؟</h3>
+          <ul class="number-list">
+            <li>عدم مراجعة العمل قبل التسليم.</li>
+            <li>أخطاء قياس.</li>
+            <li>أخطاء في الشعار أو النصوص.</li>
+            <li>تصميم غير قابل للتنفيذ.</li>
+            <li>ملف إنتاج ناقص أو غير مفهوم.</li>
+            <li>تأخير بدون إبلاغ المدير.</li>
+            <li>عدم الرد في موقف مهم أو مستعجل.</li>
+            <li>ترك المشروع بعد التصميم دون متابعة عند الحاجة.</li>
+            <li>تكرار نفس الخطأ بعد التنبيه.</li>
+            <li>التعامل بعقلية: أنا انتهيت من التصميم والباقي ليس مسؤوليتي.</li>
+            <li>رفض التعاون في الحالات المستعجلة بدون سبب واضح.</li>
+            <li>تحميل الآخرين مسؤولية أخطاء ناتجة عن التصميم أو نقص المراجعة.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="months" class="section" data-search="خطة أشهر الشهر الأول فهم النظام الثاني تقليل الأخطاء تحسين الجودة الثالث استقلالية اعتماد مسؤولية">
+        <div class="grid three">
+          <div class="card">
+            <span class="badge">الشهر الأول</span>
+            <h3>فهم النظام</h3>
+            <p>الهدف هو فهم طريقة عمل iConz وعلاقة التصميم بالإنتاج.</p>
+            <ul class="checklist">
+              <li>التعرف على طريقة استلام المشاريع.</li>
+              <li>تعلم أساسيات ملفات الإنتاج.</li>
+              <li>طرح الأسئلة عند نقص المعلومات.</li>
+              <li>تقبل الملاحظات وتقليل الأخطاء البسيطة.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="badge">الشهر الثاني</span>
+            <h3>تقليل الأخطاء وتحسين الجودة</h3>
+            <p>الهدف هو ظهور تحسن واضح في الأداء والملفات.</p>
+            <ul class="checklist">
+              <li>تقديم تصاميم أفضل.</li>
+              <li>تقليل التعديلات.</li>
+              <li>تجهيز ملفات إنتاج أوضح.</li>
+              <li>التعاون أكثر مع المعمل والفريق.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="badge">الشهر الثالث</span>
+            <h3>الاعتماد والاستقلالية</h3>
+            <p>الهدف هو إثبات القدرة على العمل بدرجة أعلى من الاستقلالية.</p>
+            <ul class="checklist">
+              <li>فهم المشروع بسرعة أكبر.</li>
+              <li>تنفيذ التصميم بجودة جيدة.</li>
+              <li>تجهيز ملفات إنتاج مفهومة.</li>
+              <li>متابعة المشروع وتقليل الأخطاء المؤثرة.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="evaluation" class="section" data-search="تقييم شهري وزن جودة تصميم دقة تنفيذ سرعة فهم إنتاج متابعة تعاون مرونة زيادة راتب">
+        <div class="grid two">
+          <div class="card">
+            <h3>كيف يتم تقييمك؟</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>المحور</th><th>الوزن</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>جودة التصميم والإبداع</td><td>15%</td></tr>
+                  <tr><td>دقة التفاصيل</td><td>10%</td></tr>
+                  <tr><td>قابلية التصميم للتنفيذ</td><td>15%</td></tr>
+                  <tr><td>سرعة الإنجاز والالتزام بالمواعيد</td><td>10%</td></tr>
+                  <tr><td>فهم متطلبات المشروع</td><td>10%</td></tr>
+                  <tr><td>تجهيز ملفات الإنتاج والطباعة</td><td>15%</td></tr>
+                  <tr><td>المتابعة مع المعمل أو الموقع</td><td>10%</td></tr>
+                  <tr><td>التعاون مع الأقسام</td><td>5%</td></tr>
+                  <tr><td>المرونة والاستجابة</td><td>10%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3>زيادة الراتب بعد 3 أشهر</h3>
+            <p class="lead">زيادة الراتب ليست تلقائية، لكنها متاحة عندما يثبت الأداء أنك أصبحتِ قيمة أكبر للشركة.</p>
+            <ul class="checklist">
+              <li>نتيجة التقييم الشهري.</li>
+              <li>التطور من شهر إلى شهر.</li>
+              <li>جودة التصاميم ووضوح ملفات الإنتاج.</li>
+              <li>قلة الأخطاء والالتزام بالمواعيد.</li>
+              <li>التعاون مع الفريق والمرونة في الحالات المستعجلة.</li>
+              <li>قدرة الشركة على الاعتماد عليك.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="rights" class="section" data-search="حقوق واجبات فترة تقييم عدالة ملاحظات نقاط قوة ضعف سؤال معلومات دوام تعليمات مواعيد تطوير">
+        <div class="grid two">
+          <div class="card">
+            <h3>حقوقك خلال فترة التقييم</h3>
+            <ul class="number-list">
+              <li>أن تعرفي ما المطلوب منك بوضوح.</li>
+              <li>أن تحصلي على ملاحظات تساعدك على التطور.</li>
+              <li>أن يتم تقييمك بعدالة.</li>
+              <li>ألا يتم الحكم عليك من موقف واحد فقط.</li>
+              <li>أن تعرفي نقاط القوة ونقاط الضعف لديك.</li>
+              <li>أن تسألي عندما تكون المعلومات غير واضحة.</li>
+              <li>أن يتم توضيح سبب أي ملاحظة أو تقييم سلبي.</li>
+              <li>أن تحصلي على فرصة حقيقية لتحسين أدائك.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>واجباتك خلال فترة التقييم</h3>
+            <ul class="number-list">
+              <li>الالتزام بالدوام والتعليمات.</li>
+              <li>احترام مواعيد التسليم.</li>
+              <li>مراجعة العمل قبل تسليمه.</li>
+              <li>السؤال عند نقص المعلومات.</li>
+              <li>التعاون مع المدير والفريق.</li>
+              <li>تجهيز ملفات واضحة.</li>
+              <li>متابعة المشروع عند الحاجة.</li>
+              <li>تقبل الملاحظات وعدم تكرار نفس الخطأ.</li>
+              <li>إظهار المرونة في الحالات المهمة.</li>
+              <li>تطوير نفسك بشكل مستمر.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote" style="margin-top:14px">
+          الهدف ليس فقط أن تنهي فترة التجربة، بل أن تصبحي جزءاً فعالاً من فريق iConz.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const sections = [...document.querySelectorAll(".section")];
+    const navButtons = [...document.querySelectorAll("[data-section]")];
+    const searchInput = document.getElementById("searchInput");
+
+    function activateSection(id) {
+      sections.forEach(section => section.classList.toggle("active", section.id === id));
+      navButtons.forEach(button => button.classList.toggle("active", button.dataset.section === id));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    navButtons.forEach(button => {
+      button.addEventListener("click", () => activateSection(button.dataset.section));
+    });
+
+    searchInput.addEventListener("input", event => {
+      const query = event.target.value.trim().toLowerCase();
+      sections.forEach(section => {
+        const haystack = `${section.dataset.search || ""} ${section.innerText}`.toLowerCase();
+        const match = !query || haystack.includes(query);
+        section.classList.toggle("hidden", !match);
+      });
+      if (query) {
+        const firstMatch = sections.find(section => !section.classList.contains("hidden"));
+        sections.forEach(section => section.classList.remove("active"));
+        navButtons.forEach(button => button.classList.remove("active"));
+        if (firstMatch) firstMatch.classList.add("active");
+      } else {
+        activateSection("intro");
+      }
+    });
+
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>
