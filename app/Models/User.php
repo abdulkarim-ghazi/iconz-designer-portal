@@ -32,11 +32,6 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
-    public function records(): HasMany
-    {
-        return $this->hasMany(DesignerRecord::class, 'designer_id');
-    }
-
     public function createdRecords(): HasMany
     {
         return $this->hasMany(DesignerRecord::class, 'created_by');

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Designer;
 use App\Models\DesignerRecord;
 use App\Models\MonthlyEvaluation;
-use App\Models\User;
 use App\Models\WeeklyEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DesignerRecordController extends Controller
@@ -37,7 +35,8 @@ class DesignerRecordController extends Controller
             $query->where(function ($builder) use ($search) {
                 $builder->where('employee_name', 'like', "%{$search}%")
                     ->orWhere('customer_name', 'like', "%{$search}%")
-                    ->orWhere('project_name', 'like', "%{$search}%");
+                    ->orWhere('project_name', 'like', "%{$search}%")
+                    ->orWhereHas('designer', fn ($designer) => $designer->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -50,7 +49,7 @@ class DesignerRecordController extends Controller
     {
         return view('records.form', [
             'record' => new DesignerRecord(['current_month' => 'month1', 'project_status' => 'new']),
-            'designers' => $this->designers($request),
+            'designers' => $this->designers(),
             'mode' => 'create',
         ]);
     }
@@ -58,9 +57,16 @@ class DesignerRecordController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedCreateRecord($request);
+        $designer = Designer::findOrFail($data['designer_id']);
+
         $data['created_by'] = $request->user()->id;
-        $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
-        $data['job_title'] = $data['job_title'] ?? 'مصمم / مصممة';
+        $data['employee_name'] = $data['employee_name'] ?: $designer->name;
+        $data['job_title'] = $designer->job_title;
+        $data['start_date'] = $data['start_date'] ?: optional($designer->start_date)->format('Y-m-d');
+        $data['manager_name'] = $data['manager_name'] ?: $designer->direct_manager;
+        $data['trial_period'] = $data['trial_period'] ?: $designer->trial_period;
+        $data['current_salary'] = $designer->current_salary;
+        $data['proposed_raise'] = $designer->proposed_raise;
         $data['project_status'] = $data['project_status'] ?? 'new';
 
         $record = DesignerRecord::create($data);
@@ -68,32 +74,7 @@ class DesignerRecordController extends Controller
 
         return redirect()
             ->route('records.show', $record)
-            ->with('status', 'تم إنشاء ملف المتابعة. يمكنك الآن إضافة المتابعة الأسبوعية أو ملاحظات الأداء من القوائم المستقلة.');
-    }
-
-    public function createDesigner(Request $request): View
-    {
-        return view('designers.create');
-    }
-
-    public function storeDesigner(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
-        ]);
-
-        $email = $data['email'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(6)).'@iconz.local';
-
-        User::create([
-            'name' => $data['name'],
-            'email' => $email,
-            'password' => Hash::make(Str::random(32)),
-            'role' => 'designer',
-            'is_active' => false,
-        ]);
-
-        return redirect()->route('records.create')->with('status', 'تم إنشاء المصمم. يمكنك الآن إنشاء ملف متابعة له.');
+            ->with('status', 'تم إنشاء ملف المتابعة. يمكنك الآن إضافة المتابعة الأسبوعية أو ملاحظات الأداء.');
     }
 
     public function show(Request $request, DesignerRecord $record): View
@@ -118,7 +99,7 @@ class DesignerRecordController extends Controller
 
         return view('records.form', [
             'record' => $record,
-            'designers' => $this->designers($request),
+            'designers' => $this->designers(),
             'mode' => 'edit',
         ]);
     }
@@ -154,9 +135,8 @@ class DesignerRecordController extends Controller
     private function validatedCreateRecord(Request $request): array
     {
         return $request->validate([
-            'designer_id' => ['required', 'exists:users,id'],
+            'designer_id' => ['required', 'exists:designers,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
-            'job_title' => ['nullable', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
             'manager_name' => ['nullable', 'string', 'max:255'],
             'trial_period' => ['required', 'string', 'max:255'],
@@ -172,7 +152,7 @@ class DesignerRecordController extends Controller
     private function validatedRecord(Request $request): array
     {
         return $request->validate([
-            'designer_id' => ['required', 'exists:users,id'],
+            'designer_id' => ['required', 'exists:designers,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
             'job_title' => ['required', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
@@ -261,9 +241,9 @@ class DesignerRecordController extends Controller
         }
     }
 
-    private function designers(Request $request)
+    private function designers()
     {
-        return User::where('role', 'designer')->orderBy('name')->get();
+        return Designer::orderBy('name')->get();
     }
 
     private function logChange(DesignerRecord $record, Request $request, string $action, string $summary, array $changes = []): void
@@ -276,13 +256,8 @@ class DesignerRecordController extends Controller
         ]);
     }
 
-    private function ensureAccess(Request $request, DesignerRecord $record, bool $adminOnly = false): void
+    private function ensureAccess(Request $request, DesignerRecord $record): void
     {
-        if ($adminOnly) {
-            abort_unless($request->user()->isAdmin(), 403);
-            return;
-        }
-
         abort_unless($request->user(), 403);
     }
 }

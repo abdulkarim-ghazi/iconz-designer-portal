@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DesignerController;
 use App\Http\Controllers\DesignerRecordController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HandbookController;
@@ -23,11 +24,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/handbook', [HandbookController::class, 'show'])->name('handbook');
     Route::get('/modules/{module}/records/{record}/edit', [RecordModuleController::class, 'edit'])->name('modules.edit');
     Route::get('/modules/{module}', [RecordModuleController::class, 'index'])->name('modules.index');
+    Route::get('/designers', [DesignerController::class, 'index'])->name('designers.index');
     Route::get('/records', [DesignerRecordController::class, 'index'])->name('records.index');
 
     Route::middleware('design_manager')->group(function () {
-        Route::get('/designers/create', [DesignerRecordController::class, 'createDesigner'])->name('designers.create');
-        Route::post('/designers', [DesignerRecordController::class, 'storeDesigner'])->name('designers.store');
+        Route::get('/designers/create', [DesignerController::class, 'create'])->name('designers.create');
+        Route::post('/designers', [DesignerController::class, 'store'])->name('designers.store');
+        Route::get('/designers/{designer}/edit', [DesignerController::class, 'edit'])->name('designers.edit');
+        Route::put('/designers/{designer}', [DesignerController::class, 'update'])->name('designers.update');
+        Route::delete('/designers/{designer}', [DesignerController::class, 'destroy'])->name('designers.destroy');
         Route::get('/records/create', [DesignerRecordController::class, 'create'])->name('records.create');
         Route::post('/records', [DesignerRecordController::class, 'store'])->name('records.store');
         Route::get('/records/{record}/edit', [DesignerRecordController::class, 'edit'])->name('records.edit');
@@ -38,6 +43,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
     });
 
+    Route::get('/designers/{designer}', [DesignerController::class, 'show'])->name('designers.show');
     Route::get('/records/{record}', [DesignerRecordController::class, 'show'])->name('records.show');
     Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
 

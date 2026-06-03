@@ -47,7 +47,7 @@
             <tbody>
                 @forelse($records as $record)
                     <tr onclick="window.location='{{ route('records.show', $record) }}'" style="cursor:pointer">
-                        <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->designer?->email }}</span></td>
+                        <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->designer?->job_title }}</span></td>
                         <td>{{ $record->customer_name ?: '-' }}</td>
                         <td>{{ $record->project_name ?: '-' }}</td>
                         <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>

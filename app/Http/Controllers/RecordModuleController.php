@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Designer;
 use App\Models\DesignerRecord;
-use App\Models\User;
 use App\Models\WeeklyEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,7 +86,7 @@ class RecordModuleController extends Controller
     private function updateDesignerData(Request $request, DesignerRecord $record): void
     {
         $data = $request->validate([
-            'designer_id' => ['required', 'exists:users,id'],
+            'designer_id' => ['required', 'exists:designers,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
             'job_title' => ['required', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
@@ -97,7 +97,7 @@ class RecordModuleController extends Controller
             'proposed_raise' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
+        $data['employee_name'] = $data['employee_name'] ?: Designer::find($data['designer_id'])->name;
         $record->fill($data);
         $dirty = $record->getDirty();
         $record->save();
@@ -184,7 +184,7 @@ class RecordModuleController extends Controller
 
     private function designers()
     {
-        return User::where('role', 'designer')->orderBy('name')->get();
+        return Designer::orderBy('name')->get();
     }
 
     private function logChange(Request $request, DesignerRecord $record, string $action, string $summary, array $changes = []): void

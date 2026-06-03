@@ -6,7 +6,6 @@
     $roleLabels = [
         'admin' => 'مدير عام / مراقبة',
         'design_manager' => 'مدير التصميم / إدخال وتعديل',
-        'designer' => 'مصمم / سجل داخلي',
     ];
 @endphp
 
@@ -15,7 +14,7 @@
     <div>
         <span class="eyebrow">Admin</span>
         <h1>إدارة المستخدمين</h1>
-        <p class="muted">إضافة حسابات الإدارة ومدير التصميم، مع إبقاء المصممين كسجلات داخلية عند الحاجة.</p>
+        <p class="muted">إدارة حسابات الدخول فقط: المدير العام ومدير التصميم. بيانات المصممين لها قسم مستقل.</p>
     </div>
     <div class="actions"><a class="btn primary" href="{{ route('users.create') }}">إضافة مستخدم</a></div>
 </header>

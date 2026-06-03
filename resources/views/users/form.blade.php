@@ -22,7 +22,6 @@
             <select name="role">
                 <option value="admin" @selected(old('role', $user->role)==='admin')>مدير عام / مراقبة</option>
                 <option value="design_manager" @selected(old('role', $user->role)==='design_manager')>مدير التصميم / إدخال وتعديل</option>
-                <option value="designer" @selected(old('role', $user->role)==='designer')>مصمم / سجل داخلي</option>
             </select>
         </div>
         <label class="field full"><span>الحالة</span><span><input type="checkbox" name="is_active" value="1" style="width:auto; min-height:auto" @checked(old('is_active', $user->is_active))> حساب مفعل</span></label>

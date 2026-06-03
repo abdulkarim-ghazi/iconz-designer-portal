@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('designer_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('designer_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('designer_id')->constrained('designers')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('employee_name');
             $table->string('job_title')->default('مصمم / مصممة');

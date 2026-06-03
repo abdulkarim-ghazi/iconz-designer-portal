@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Designer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,9 +21,9 @@ class DatabaseSeeder extends Seeder
             ['name' => 'مدير التصميم', 'password' => Hash::make('password'), 'role' => 'design_manager']
         );
 
-        User::firstOrCreate(
-            ['email' => 'designer@iconz.local'],
-            ['name' => 'مصممة تجريبية', 'password' => Hash::make('password'), 'role' => 'designer', 'is_active' => false]
+        Designer::firstOrCreate(
+            ['name' => 'مصممة تجريبية'],
+            ['job_title' => 'مصمم / مصممة', 'trial_period' => '3 أشهر', 'current_month' => 'month1', 'status' => 'active']
         );
     }
 }

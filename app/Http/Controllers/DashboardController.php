@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Designer;
 use App\Models\DesignerRecord;
 use App\Models\RecordChange;
-use App\Models\User;
 use App\Models\WeeklyEntry;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $base = clone $records;
 
         return view('dashboard.index', [
-            'totalDesigners' => User::where('role', 'designer')->count(),
+            'totalDesigners' => Designer::count(),
             'totalRecords' => (clone $base)->count(),
             'openRecords' => (clone $base)->whereIn('project_status', ['new', 'in_progress', 'waiting_customer', 'sent'])->count(),
             'sentRecords' => (clone $base)->whereIn('project_status', ['sent', 'approved', 'closed'])->count(),

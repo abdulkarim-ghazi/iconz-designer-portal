@@ -41,7 +41,7 @@ class DesignerRecord extends Model
 
     public function designer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'designer_id');
+        return $this->belongsTo(Designer::class);
     }
 
     public function creator(): BelongsTo

@@ -2,6 +2,7 @@
 
 @php
     $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
+    $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
     $isCreate = $mode === 'create';
 @endphp
 
@@ -14,14 +15,14 @@
         <h1>{{ $isCreate ? 'إنشاء ملف متابعة' : 'تعديل ملف متابعة' }}</h1>
         <p class="muted">
             {{ $isCreate
-                ? 'أنشئ ملف متابعة لمصمم موجود. إذا لم يكن المصمم موجوداً، أنشئ المصمم أولاً من الزر المستقل.'
+                ? 'اختر مصمماً من قسم المصممين ثم أنشئ له ملف متابعة. المصمم هنا ليس مستخدم نظام.'
                 : 'تعديل بيانات ملف المتابعة العامة. المتابعة الأسبوعية وملاحظات الأداء لها موديولات مستقلة.' }}
         </p>
     </div>
     <div class="actions">
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
-        <a class="btn" href="{{ route('designers.create') }}">إنشاء مصمم جديد</a>
-        <a class="btn" href="{{ route('modules.index', 'designer-data') }}">تعديل بيانات المصمم</a>
+        <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
+        <a class="btn" href="{{ route('modules.index', 'designer-data') }}">بيانات المصمم</a>
     </div>
 </header>
 
@@ -31,8 +32,8 @@
 
 @if($designers->isEmpty())
     <div class="alert">
-        لا يوجد مصممون بعد. أنشئ مصمماً أولاً ثم ارجع لإنشاء ملف المتابعة.
-        <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إنشاء مصمم جديد</a>
+        لا يوجد مصممون بعد. أضف مصمماً من قسم المصممين أولاً، ثم ارجع لإنشاء ملف المتابعة.
+        <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إضافة مصمم</a>
     </div>
 @endif
 
@@ -43,7 +44,7 @@
     <section class="panel">
         <span class="eyebrow">الربط الأساسي</span>
         <h2>المصمم وملف المتابعة</h2>
-        <p class="muted">هنا تختار المصمم وتحدد فترة المتابعة فقط. بيانات المصمم التفصيلية تعدل من موديول بيانات المصمم.</p>
+        <p class="muted">بيانات المصمم الأساسية تدار من قسم المصممين. هنا تختار المصمم وتحدد سياق ملف المتابعة فقط.</p>
         <div class="form-grid">
             <div class="field">
                 <label>المصمم</label>
@@ -72,11 +73,11 @@
     <section class="panel">
         <span class="eyebrow">اختياري</span>
         <h2>ربط الملف بزبون أو مشروع</h2>
-        <p class="muted">استخدم هذه الحقول إذا كان ملف المتابعة مرتبطاً بزبون أو مشروع محدد. ليست بديلاً عن المتابعة الأسبوعية.</p>
+        <p class="muted">استخدم هذه الحقول إذا كانت فترة المتابعة مرتبطة بزبون أو مشروع محدد.</p>
         <div class="form-grid">
             <div class="field"><label>اسم الزبون</label><input name="customer_name" value="{{ old('customer_name', $record->customer_name) }}"></div>
             <div class="field"><label>اسم المشروع</label><input name="project_name" value="{{ old('project_name', $record->project_name) }}"></div>
-            <div class="field"><label>حالة الملف</label><select name="project_status">@foreach(['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'] as $key=>$label)<option value="{{ $key }}" @selected(old('project_status', $record->project_status ?: 'new') === $key)>{{ $label }}</option>@endforeach</select></div>
+            <div class="field"><label>حالة الملف</label><select name="project_status">@foreach($statusLabels as $key=>$label)<option value="{{ $key }}" @selected(old('project_status', $record->project_status ?: 'new') === $key)>{{ $label }}</option>@endforeach</select></div>
             <div class="field full"><label>طلب الزبون / سياق المتابعة</label><textarea name="customer_request">{{ old('customer_request', $record->customer_request) }}</textarea></div>
             <div class="field full"><label>ملاحظات أولية</label><textarea name="designer_notes">{{ old('designer_notes', $record->designer_notes) }}</textarea></div>
         </div>

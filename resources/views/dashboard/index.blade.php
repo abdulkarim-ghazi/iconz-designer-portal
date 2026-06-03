@@ -25,7 +25,7 @@
     <div class="actions">
         @if($canManage)
             <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
-            <a class="btn" href="{{ route('designers.create') }}">إنشاء مصمم جديد</a>
+            <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
         @endif
         <a class="btn" href="{{ route('records.index') }}">كل ملفات المتابعة</a>
     </div>
@@ -45,10 +45,10 @@
             <h2>إنشاء ملف متابعة</h2>
             <p class="muted">اربط مصمماً موجوداً بفترة متابعة أو مشروع. هذا ليس إنشاء مصمم جديد.</p>
         </a>
-        <a class="panel module-card" href="{{ route('designers.create') }}">
+        <a class="panel module-card" href="{{ route('designers.index') }}">
             <span class="eyebrow">02</span>
-            <h2>إنشاء مصمم جديد</h2>
-            <p class="muted">أضف اسم مصمم جديد كي يصبح قابلاً للاختيار في ملفات المتابعة.</p>
+            <h2>قسم المصممين</h2>
+            <p class="muted">أدر بيانات المصممين كموظفين تتم متابعتهم. لا يوجد مصمم يدخل النظام.</p>
         </a>
         <a class="panel module-card" href="{{ route('modules.index', 'weekly-followup') }}">
             <span class="eyebrow">03</span>
@@ -144,7 +144,7 @@
             <tbody>
                 @forelse($recentRecords as $record)
                     <tr onclick="window.location='{{ route('records.show', $record) }}'" style="cursor:pointer">
-                        <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->designer?->email }}</span></td>
+                        <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->designer?->job_title }}</span></td>
                         <td>{{ $record->customer_name ?: '-' }}</td>
                         <td>{{ $record->project_name ?: '-' }}</td>
                         <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
