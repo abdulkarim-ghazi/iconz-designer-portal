@@ -15,7 +15,7 @@
         <p class="muted">هذا الجدول هو نقطة الإدارة الرئيسية: كل صف يمثل ملف متابعة مستقل لزبون أو مشروع، ويفتح صفحة كاملة عند اختياره.</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.create') }}">إضافة ملف جديد</a>
+        <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
         <a class="btn" href="{{ route('dashboard') }}">لوحة المتابعة</a>
     </div>
 </header>

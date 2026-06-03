@@ -58,21 +58,41 @@ class DesignerRecordController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedCreateRecord($request);
-        $designerId = $this->resolveDesignerForCreate($request);
-
-        $data['designer_id'] = $designerId;
         $data['created_by'] = $request->user()->id;
-        $data['employee_name'] = $data['employee_name'] ?: User::find($designerId)->name;
-        $data['project_status'] = 'new';
-
-        unset($data['new_designer_name'], $data['new_designer_email']);
+        $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
+        $data['project_status'] = $data['project_status'] ?? 'new';
 
         $record = DesignerRecord::create($data);
-        $this->logChange($record, $request, 'created', 'تم إنشاء سجل مصمم جديد.', $data);
+        $this->logChange($record, $request, 'created', 'تم إنشاء ملف متابعة جديد.', $data);
 
         return redirect()
             ->route('records.show', $record)
-            ->with('status', 'تم إنشاء سجل المصمم. أضف المتابعة الأسبوعية أو ملاحظات الأداء من القوائم المستقلة.');
+            ->with('status', 'تم إنشاء ملف المتابعة. يمكنك الآن إضافة المتابعة الأسبوعية أو ملاحظات الأداء من القوائم المستقلة.');
+    }
+
+    public function createDesigner(Request $request): View
+    {
+        return view('designers.create');
+    }
+
+    public function storeDesigner(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+        ]);
+
+        $email = $data['email'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(6)).'@iconz.local';
+
+        User::create([
+            'name' => $data['name'],
+            'email' => $email,
+            'password' => Hash::make(Str::random(32)),
+            'role' => 'designer',
+            'is_active' => false,
+        ]);
+
+        return redirect()->route('records.create')->with('status', 'تم إنشاء المصمم. يمكنك الآن إنشاء ملف متابعة له.');
     }
 
     public function show(Request $request, DesignerRecord $record): View
@@ -133,9 +153,7 @@ class DesignerRecordController extends Controller
     private function validatedCreateRecord(Request $request): array
     {
         return $request->validate([
-            'designer_id' => ['required', 'string'],
-            'new_designer_name' => ['nullable', 'string', 'max:255'],
-            'new_designer_email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            'designer_id' => ['required', 'exists:users,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
             'job_title' => ['required', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
@@ -144,6 +162,11 @@ class DesignerRecordController extends Controller
             'current_salary' => ['nullable', 'numeric', 'min:0'],
             'proposed_raise' => ['nullable', 'string', 'max:255'],
             'current_month' => ['required', 'in:month1,month2,month3'],
+            'customer_name' => ['nullable', 'string', 'max:255'],
+            'project_name' => ['nullable', 'string', 'max:255'],
+            'project_status' => ['nullable', 'in:new,in_progress,waiting_customer,sent,approved,closed'],
+            'customer_request' => ['nullable', 'string'],
+            'designer_notes' => ['nullable', 'string'],
         ]);
     }
 
@@ -170,29 +193,6 @@ class DesignerRecordController extends Controller
             'decision_reason' => ['nullable', 'string'],
             'next_plan' => ['nullable', 'string'],
         ]);
-    }
-
-    private function resolveDesignerForCreate(Request $request): int
-    {
-        if ($request->input('designer_id') !== 'new') {
-            $request->validate(['designer_id' => ['required', 'exists:users,id']]);
-
-            return (int) $request->input('designer_id');
-        }
-
-        $request->validate(['new_designer_name' => ['required', 'string', 'max:255']]);
-
-        $name = $request->string('new_designer_name')->toString();
-        $email = $request->input('new_designer_email')
-            ?: Str::slug($name).'-'.Str::lower(Str::random(6)).'@iconz.local';
-
-        return User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => Hash::make(Str::random(32)),
-            'role' => 'designer',
-            'is_active' => false,
-        ])->id;
     }
 
     private function syncChildren(DesignerRecord $record, Request $request): void

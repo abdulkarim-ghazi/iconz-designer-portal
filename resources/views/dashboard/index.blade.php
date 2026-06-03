@@ -11,16 +11,17 @@
     <div>
         <span class="eyebrow">iConz Designer Portal</span>
         <h1>لوحة متابعة المصممين</h1>
-        <p class="muted">النظام مخصص لمدير التصميم والمدير العام: إنشاء سجل مصمم، ثم إضافة متابعة أسبوعية وملاحظات أداء دورية، ثم مراجعة القرار.</p>
+        <p class="muted">مدير التصميم ينشئ ملف متابعة لمصمم موجود، أو ينشئ مصمماً جديداً من مسار مستقل. المتابعة الأسبوعية وملاحظات الأداء ترتبط بملف المتابعة.</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.create') }}">إنشاء سجل مصمم</a>
+        <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+        <a class="btn" href="{{ route('designers.create') }}">إنشاء مصمم جديد</a>
         <a class="btn" href="{{ route('records.index') }}">كل ملفات المتابعة</a>
     </div>
 </header>
 
 <div class="grid metrics">
-    <div class="card metric"><span>سجلات المصممين</span><strong>{{ $totalRecords }}</strong></div>
+    <div class="card metric"><span>ملفات المتابعة</span><strong>{{ $totalRecords }}</strong></div>
     <div class="card metric"><span>ملفات قيد المتابعة</span><strong>{{ $openRecords }}</strong></div>
     <div class="card metric"><span>ملفات مرسلة أو معتمدة</span><strong>{{ $sentRecords }}</strong></div>
     <div class="card metric"><span>موديولات العمل</span><strong>5</strong></div>
@@ -29,36 +30,34 @@
 <div class="grid three" style="margin-top:16px">
     <a class="panel module-card" href="{{ route('records.create') }}">
         <span class="eyebrow">01</span>
-        <h2>إنشاء سجل مصمم</h2>
-        <p class="muted">يستخدمه مدير التصميم عند دخول مصمم جديد أو بدء فترة متابعة جديدة.</p>
+        <h2>إنشاء ملف متابعة</h2>
+        <p class="muted">اربط مصمماً موجوداً بفترة متابعة أو مشروع. هذا ليس إنشاء مصمم جديد.</p>
+    </a>
+    <a class="panel module-card" href="{{ route('designers.create') }}">
+        <span class="eyebrow">02</span>
+        <h2>إنشاء مصمم جديد</h2>
+        <p class="muted">أضف اسم مصمم جديد كي يصبح قابلاً للاختيار في ملفات المتابعة.</p>
     </a>
     <a class="panel module-card" href="{{ route('modules.index', 'weekly-followup') }}">
-        <span class="eyebrow">02</span>
+        <span class="eyebrow">03</span>
         <h2>المتابعة الأسبوعية</h2>
-        <p class="muted">يختار مدير التصميم مصمماً معيناً ثم يضيف متابعة الأسبوع.</p>
+        <p class="muted">اختر ملف متابعة ثم أضف متابعة الأسبوع والملفات الداعمة.</p>
     </a>
     <a class="panel module-card" href="{{ route('modules.index', 'performance-notes') }}">
-        <span class="eyebrow">03</span>
+        <span class="eyebrow">04</span>
         <h2>ملاحظات الأداء والعمل</h2>
-        <p class="muted">ملاحظات دورية لمصمم معين: نقطة إيجابية، خطأ، أو ملاحظة تطوير.</p>
+        <p class="muted">اختر ملف متابعة ثم اربط به ملاحظة أداء أو خطأ أو نقطة إيجابية.</p>
     </a>
     <a class="panel module-card" href="{{ route('modules.index', 'designer-data') }}">
-        <span class="eyebrow">04</span>
+        <span class="eyebrow">05</span>
         <h2>بيانات المصمم</h2>
-        <p class="muted">تعديل بيانات مصمم موجود دون فتح كل أجزاء الملف.</p>
+        <p class="muted">تعديل بيانات مصمم أو ملف متابعة موجود دون خلطها مع الملاحظات.</p>
     </a>
     <a class="panel module-card" href="{{ route('records.index') }}">
-        <span class="eyebrow">05</span>
+        <span class="eyebrow">06</span>
         <h2>كل ملفات المتابعة</h2>
         <p class="muted">الملف الكامل يجمع بيانات المصمم، المتابعة، الملاحظات، الوثائق، وسجل التغييرات.</p>
     </a>
-    @if(auth()->user()->isAdmin())
-        <a class="panel module-card" href="{{ route('users.index') }}">
-            <span class="eyebrow">06</span>
-            <h2>إدارة المستخدمين</h2>
-            <p class="muted">حسابات مدير التصميم، المدير العام، والمصممين غير المستخدمين للنظام.</p>
-        </a>
-    @endif
 </div>
 
 <section class="panel" style="margin-top:16px">
@@ -88,7 +87,7 @@
                         <td><a class="btn" href="{{ route('records.show', $record) }}">الملف الكامل</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="muted">لا توجد نتائج بعد. أنشئ سجل مصمم أولاً.</td></tr>
+                    <tr><td colspan="7" class="muted">لا توجد نتائج بعد. أنشئ مصمماً ثم ملف متابعة.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -96,7 +95,7 @@
 </section>
 
 <section class="panel" style="margin-top:16px">
-    <h2>آخر سجلات المصممين</h2>
+    <h2>آخر ملفات المتابعة</h2>
     <div class="table-wrap">
         <table>
             <thead><tr><th>المصمم</th><th>الزبون</th><th>المشروع</th><th>الحالة</th><th>وثائق</th><th>آخر تحديث</th></tr></thead>
@@ -111,7 +110,7 @@
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="muted">لا توجد سجلات مصممين بعد.</td></tr>
+                    <tr><td colspan="6" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

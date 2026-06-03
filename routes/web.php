@@ -21,6 +21,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/handbook', [HandbookController::class, 'show'])->name('handbook');
+    Route::get('/designers/create', [DesignerRecordController::class, 'createDesigner'])->name('designers.create');
+    Route::post('/designers', [DesignerRecordController::class, 'storeDesigner'])->name('designers.store');
     Route::get('/modules/{module}', [RecordModuleController::class, 'index'])->name('modules.index');
     Route::get('/modules/{module}/records/{record}/edit', [RecordModuleController::class, 'edit'])->name('modules.edit');
     Route::put('/modules/{module}/records/{record}', [RecordModuleController::class, 'update'])->name('modules.update');
