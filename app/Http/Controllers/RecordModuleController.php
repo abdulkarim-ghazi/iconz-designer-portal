@@ -15,18 +15,18 @@ class RecordModuleController extends Controller
     private array $modules = [
         'designer-data' => [
             'title' => 'بيانات المصمم',
-            'description' => 'يدخلها رئيس القسم أو الإدارة لتعريف المصمم ومرحلة المتابعة.',
-            'owner' => 'رئيس القسم',
+            'description' => 'يدخلها مدير التصميم لتعريف المصمم ومرحلة المتابعة.',
+            'owner' => 'مدير التصميم',
         ],
         'weekly-followup' => [
             'title' => 'متابعة المصمم الأسبوعية',
-            'description' => 'يسجلها رئيس القسم لمصمم معين حسب الأسابيع والمشاريع.',
-            'owner' => 'رئيس القسم',
+            'description' => 'يسجلها مدير التصميم لمصمم معين حسب الأسابيع والمشاريع.',
+            'owner' => 'مدير التصميم',
         ],
         'performance-notes' => [
             'title' => 'ملاحظات الأداء والعمل',
             'description' => 'ملاحظات مرتبطة بمصمم معين: أداء، أخطاء، نقاط إيجابية، أو مواقف تحتاج متابعة.',
-            'owner' => 'رئيس القسم / الإدارة',
+            'owner' => 'مدير التصميم',
         ],
     ];
 
@@ -60,13 +60,13 @@ class RecordModuleController extends Controller
             'module' => $module,
             'meta' => $meta,
             'record' => $record,
-            'designers' => $this->designers($request),
+            'designers' => $this->designers(),
         ]);
     }
 
     public function update(Request $request, string $module, DesignerRecord $record): RedirectResponse
     {
-        $this->ensureAccess($request, $record);
+        abort_unless($request->user()->canManageDesignerData(), 403);
         $this->moduleMeta($module);
 
         match ($module) {
@@ -182,7 +182,7 @@ class RecordModuleController extends Controller
         ]);
     }
 
-    private function designers(Request $request)
+    private function designers()
     {
         return User::where('role', 'designer')->orderBy('name')->get();
     }

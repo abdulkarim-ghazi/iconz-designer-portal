@@ -8,22 +8,29 @@
 </head>
 <body>
     @auth
+        @php
+            $canManage = auth()->user()->canManageDesignerData();
+            $isAdmin = auth()->user()->isAdmin();
+        @endphp
         <div class="app">
             <aside class="sidebar">
                 <div class="brand">
                     <div class="logo"><span>i</span>Conz <small>Portal</small></div>
-                    <p>منظومة متابعة المصممين، طلبات الزبائن، الوثائق، التقييمات، وسجل التغييرات.</p>
+                    <p>منظومة متابعة المصممين، الوثائق، التقييمات، وسجل التغييرات.</p>
                 </div>
                 <nav class="nav">
-                    <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span>لوحة المتابعة</span><b>01</b></a>
-                    <a class="{{ request()->routeIs('records.index') || request()->routeIs('records.show') || request()->routeIs('records.edit') ? 'active' : '' }}" href="{{ route('records.index') }}"><span>ملفات المتابعة</span><b>02</b></a>
+                    <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span>{{ $isAdmin ? 'لوحة مراقبة الإدارة' : 'لوحة المتابعة' }}</span><b>01</b></a>
+                    <a class="{{ request()->routeIs('records.index') || request()->routeIs('records.show') || request()->routeIs('records.edit') ? 'active' : '' }}" href="{{ route('records.index') }}"><span>كل ملفات المتابعة</span><b>02</b></a>
                     <a class="{{ request()->fullUrlIs('*modules/designer-data*') ? 'active' : '' }}" href="{{ route('modules.index', 'designer-data') }}"><span>بيانات المصمم</span><b>03</b></a>
                     <a class="{{ request()->fullUrlIs('*modules/weekly-followup*') ? 'active' : '' }}" href="{{ route('modules.index', 'weekly-followup') }}"><span>المتابعة الأسبوعية</span><b>04</b></a>
                     <a class="{{ request()->fullUrlIs('*modules/performance-notes*') ? 'active' : '' }}" href="{{ route('modules.index', 'performance-notes') }}"><span>ملاحظات الأداء</span><b>05</b></a>
-                    <a class="{{ request()->routeIs('records.create') ? 'active' : '' }}" href="{{ route('records.create') }}"><span>إنشاء ملف متابعة</span><b>06</b></a>
-                    <a class="{{ request()->routeIs('handbook') ? 'active' : '' }}" href="{{ route('handbook') }}"><span>دليل المصممة</span><b>07</b></a>
-                    @if(auth()->user()->isAdmin())
-                        <a class="{{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><span>إدارة المستخدمين</span><b>08</b></a>
+                    @if($canManage)
+                        <a class="{{ request()->routeIs('records.create') ? 'active' : '' }}" href="{{ route('records.create') }}"><span>إنشاء ملف متابعة</span><b>06</b></a>
+                        <a class="{{ request()->routeIs('designers.create') ? 'active' : '' }}" href="{{ route('designers.create') }}"><span>إنشاء مصمم</span><b>07</b></a>
+                    @endif
+                    <a class="{{ request()->routeIs('handbook') ? 'active' : '' }}" href="{{ route('handbook') }}"><span>دليل المصممة</span><b>{{ $canManage ? '08' : '06' }}</b></a>
+                    @if($isAdmin)
+                        <a class="{{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><span>إدارة المستخدمين</span><b>07</b></a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

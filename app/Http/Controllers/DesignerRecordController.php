@@ -145,7 +145,7 @@ class DesignerRecordController extends Controller
 
     public function destroy(Request $request, DesignerRecord $record): RedirectResponse
     {
-        $this->ensureAccess($request, $record, adminOnly: true);
+        abort_unless($request->user()->canManageDesignerData(), 403);
         $record->delete();
 
         return redirect()->route('records.index')->with('status', 'تم حذف ملف المتابعة.');

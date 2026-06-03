@@ -5,6 +5,7 @@
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
     $avg = (int) round($record->monthlyEvaluations->avg('total_score') ?: 0);
     $errors = $record->weeklyEntries->where('production_error', true)->count() + $record->activityLogs->where('type', 'خطأ إنتاجي')->count();
+    $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
 @section('title', 'ملف متابعة - '.$record->employee_name)
@@ -17,9 +18,11 @@
         <p class="muted">{{ $record->customer_name ?: 'بدون زبون محدد' }} · {{ $record->project_name ?: 'بدون مشروع محدد' }}</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل الملف</a>
+        @if($canManage)
+            <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل الملف</a>
+        @endif
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
-        @if(auth()->user()->isAdmin())
+        @if($canManage)
             <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف ملف المتابعة؟')">
                 @csrf @method('DELETE')
                 <button class="btn danger" type="submit">حذف</button>
@@ -27,6 +30,10 @@
         @endif
     </div>
 </header>
+
+@unless($canManage)
+    <div class="module-note" style="margin-bottom:16px">أنت تشاهد الملف بوضع مراقبة الإدارة. التعديل والرفع والحذف من صلاحية مدير التصميم فقط.</div>
+@endunless
 
 <div class="grid metrics">
     <div class="card metric"><span>متوسط التقييم</span><strong>{{ $avg }}%</strong></div>
@@ -53,7 +60,7 @@
     <section class="panel module-card">
         <span class="eyebrow">موديول 03</span>
         <h2>قرار الإدارة</h2>
-        <p><span class="badge gold">{{ $record->final_decision }}</span></p>
+        <p><span class="badge gold">{{ $record->final_decision ?: 'لم يتم اتخاذ القرار' }}</span></p>
         <p class="muted">{{ $record->decision_reason ?: 'لم يكتب سبب القرار بعد.' }}</p>
     </section>
 </div>
@@ -136,12 +143,14 @@
 
 <section class="panel" style="margin-top:16px">
     <h2>الوثائق والمعاينة</h2>
-    <form method="POST" action="{{ route('records.documents.store', $record) }}" enctype="multipart/form-data" class="form-grid" style="margin-bottom:14px">
-        @csrf
-        <div class="field"><label>عنوان اختياري</label><input name="title" placeholder="مثال: ملف إنتاج، صورة مرجعية، موافقة الزبون"></div>
-        <div class="field"><label>رفع وثائق متعددة</label><input type="file" name="documents[]" multiple required></div>
-        <div class="field full"><button class="btn primary" type="submit">رفع الوثائق</button></div>
-    </form>
+    @if($canManage)
+        <form method="POST" action="{{ route('records.documents.store', $record) }}" enctype="multipart/form-data" class="form-grid" style="margin-bottom:14px">
+            @csrf
+            <div class="field"><label>عنوان اختياري</label><input name="title" placeholder="مثال: ملف إنتاج، صورة مرجعية، موافقة الزبون"></div>
+            <div class="field"><label>رفع وثائق متعددة</label><input type="file" name="documents[]" multiple required></div>
+            <div class="field full"><button class="btn primary" type="submit">رفع الوثائق</button></div>
+        </form>
+    @endif
     <div class="doc-grid">
         @forelse($record->documents as $document)
             <div class="card panel">
@@ -158,10 +167,12 @@
                     <h3 style="margin-top:10px">{{ $document->title ?: $document->original_name }}</h3>
                     <p class="muted">{{ $document->original_name }}</p>
                 </a>
-                <form method="POST" action="{{ route('documents.destroy', $document) }}" onsubmit="return confirm('حذف الوثيقة؟')">
-                    @csrf @method('DELETE')
-                    <button class="btn danger" type="submit">حذف</button>
-                </form>
+                @if($canManage)
+                    <form method="POST" action="{{ route('documents.destroy', $document) }}" onsubmit="return confirm('حذف الوثيقة؟')">
+                        @csrf @method('DELETE')
+                        <button class="btn danger" type="submit">حذف</button>
+                    </form>
+                @endif
             </div>
         @empty
             <p class="muted">لا توجد وثائق بعد.</p>

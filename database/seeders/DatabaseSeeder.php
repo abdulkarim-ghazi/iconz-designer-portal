@@ -12,7 +12,12 @@ class DatabaseSeeder extends Seeder
     {
         User::firstOrCreate(
             ['email' => 'admin@iconz.local'],
-            ['name' => 'إدارة iConz', 'password' => Hash::make('password'), 'role' => 'admin']
+            ['name' => 'المدير العام', 'password' => Hash::make('password'), 'role' => 'admin']
+        );
+
+        User::firstOrCreate(
+            ['email' => 'design-manager@iconz.local'],
+            ['name' => 'مدير التصميم', 'password' => Hash::make('password'), 'role' => 'design_manager']
         );
 
         User::firstOrCreate(

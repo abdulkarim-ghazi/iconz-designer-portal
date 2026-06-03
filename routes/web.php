@@ -21,15 +21,19 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/handbook', [HandbookController::class, 'show'])->name('handbook');
-    Route::get('/designers/create', [DesignerRecordController::class, 'createDesigner'])->name('designers.create');
-    Route::post('/designers', [DesignerRecordController::class, 'storeDesigner'])->name('designers.store');
     Route::get('/modules/{module}', [RecordModuleController::class, 'index'])->name('modules.index');
     Route::get('/modules/{module}/records/{record}/edit', [RecordModuleController::class, 'edit'])->name('modules.edit');
-    Route::put('/modules/{module}/records/{record}', [RecordModuleController::class, 'update'])->name('modules.update');
-    Route::resource('records', DesignerRecordController::class);
-    Route::post('/records/{record}/documents', [DocumentController::class, 'store'])->name('records.documents.store');
+    Route::resource('records', DesignerRecordController::class)->only(['index', 'show']);
     Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
-    Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+
+    Route::middleware('design_manager')->group(function () {
+        Route::get('/designers/create', [DesignerRecordController::class, 'createDesigner'])->name('designers.create');
+        Route::post('/designers', [DesignerRecordController::class, 'storeDesigner'])->name('designers.store');
+        Route::put('/modules/{module}/records/{record}', [RecordModuleController::class, 'update'])->name('modules.update');
+        Route::resource('records', DesignerRecordController::class)->except(['index', 'show']);
+        Route::post('/records/{record}/documents', [DocumentController::class, 'store'])->name('records.documents.store');
+        Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+    });
 
     Route::middleware('admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);

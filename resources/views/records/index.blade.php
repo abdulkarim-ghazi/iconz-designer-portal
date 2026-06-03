@@ -5,6 +5,7 @@
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
     $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
+    $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
 @section('content')
@@ -12,10 +13,12 @@
     <div>
         <span class="eyebrow">موديول ملفات المتابعة</span>
         <h1>كل ملفات المتابعة</h1>
-        <p class="muted">هذا الجدول هو نقطة الإدارة الرئيسية: كل صف يمثل ملف متابعة مستقل لزبون أو مشروع، ويفتح صفحة كاملة عند اختياره.</p>
+        <p class="muted">كل صف يمثل ملف متابعة مستقل لمصمم، ويمكن فتحه لمراجعة البيانات والمتابعات والملاحظات والوثائق وسجل التغييرات.</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+        @if($canManage)
+            <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+        @endif
         <a class="btn" href="{{ route('dashboard') }}">لوحة المتابعة</a>
     </div>
 </header>
@@ -54,7 +57,7 @@
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="muted">لا توجد ملفات متابعة بعد. ابدأ من زر إضافة ملف جديد.</td></tr>
+                    <tr><td colspan="8" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

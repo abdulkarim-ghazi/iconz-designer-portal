@@ -2,12 +2,20 @@
 
 @section('title', 'إدارة المستخدمين')
 
+@php
+    $roleLabels = [
+        'admin' => 'مدير عام / مراقبة',
+        'design_manager' => 'مدير التصميم / إدخال وتعديل',
+        'designer' => 'مصمم / سجل داخلي',
+    ];
+@endphp
+
 @section('content')
 <header class="topbar">
     <div>
         <span class="eyebrow">Admin</span>
         <h1>إدارة المستخدمين</h1>
-        <p class="muted">إضافة حسابات إدارة أو مصممين وتفعيلها أو إيقافها.</p>
+        <p class="muted">إضافة حسابات الإدارة ومدير التصميم، مع إبقاء المصممين كسجلات داخلية عند الحاجة.</p>
     </div>
     <div class="actions"><a class="btn primary" href="{{ route('users.create') }}">إضافة مستخدم</a></div>
 </header>
@@ -20,7 +28,7 @@
                     <tr>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td><span class="badge">{{ $user->role === 'admin' ? 'إدارة' : 'مصمم' }}</span></td>
+                        <td><span class="badge">{{ $roleLabels[$user->role] ?? $user->role }}</span></td>
                         <td><span class="badge {{ $user->is_active ? 'green' : 'red' }}">{{ $user->is_active ? 'مفعل' : 'موقوف' }}</span></td>
                         <td class="actions">
                             <a class="btn" href="{{ route('users.edit', $user) }}">تعديل</a>

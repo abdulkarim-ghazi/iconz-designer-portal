@@ -4,18 +4,21 @@
 
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
+    $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">موديول مستقل</span>
+        <span class="eyebrow">{{ $canManage ? 'موديول تنفيذي' : 'موديول مراقبة' }}</span>
         <h1>{{ $meta['title'] }}</h1>
         <p class="muted">{{ $meta['description'] }}</p>
-        <p class="muted">المسؤول: {{ $meta['owner'] }}. اختر ملف متابعة لمصمم معين ثم عدّل هذا الجزء فقط.</p>
+        <p class="muted">المسؤول عن الإدخال: {{ $meta['owner'] }}. الأدمن يراجع هذا الجزء ضمن الملفات ولا ينشئ بيانات تشغيلية.</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+        @if($canManage)
+            <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+        @endif
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
     </div>
 </header>
@@ -42,7 +45,7 @@
         </div>
         <div class="field">
             <label>&nbsp;</label>
-            <button class="btn primary" type="button" onclick="if(document.getElementById('quickRecordSelect').value) window.location = document.getElementById('quickRecordSelect').value">فتح الموديول</button>
+            <button class="btn primary" type="button" onclick="if(document.getElementById('quickRecordSelect').value) window.location = document.getElementById('quickRecordSelect').value">{{ $canManage ? 'فتح الموديول' : 'عرض الموديول' }}</button>
         </div>
     </div>
 
@@ -66,10 +69,10 @@
                         <td>{{ $record->project_name ?: '-' }}</td>
                         <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
-                        <td><a class="btn primary" href="{{ route('modules.edit', [$module, $record]) }}">فتح الموديول</a></td>
+                        <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('modules.edit', [$module, $record]) }}">{{ $canManage ? 'فتح للتعديل' : 'عرض' }}</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="muted">لا توجد ملفات متابعة بعد. أنشئ ملفاً أولاً ثم ارجع لهذا الموديول.</td></tr>
+                    <tr><td colspan="6" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

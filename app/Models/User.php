@@ -46,4 +46,14 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    public function isDesignManager(): bool
+    {
+        return $this->role === 'design_manager';
+    }
+
+    public function canManageDesignerData(): bool
+    {
+        return $this->isDesignManager();
+    }
 }

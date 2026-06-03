@@ -18,7 +18,7 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('users.form', ['user' => new User(['role' => 'designer', 'is_active' => true]), 'mode' => 'create']);
+        return view('users.form', ['user' => new User(['role' => 'design_manager', 'is_active' => true]), 'mode' => 'create']);
     }
 
     public function store(Request $request): RedirectResponse
@@ -64,7 +64,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user)],
             'password' => [$user ? 'nullable' : 'required', 'string', 'min:8'],
-            'role' => ['required', 'in:admin,designer'],
+            'role' => ['required', 'in:admin,design_manager,designer'],
             'is_active' => ['nullable', 'boolean'],
         ]);
     }

@@ -70,6 +70,6 @@ class DocumentController extends Controller
 
     private function ensureAccess(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user()->isAdmin() || $record->designer_id === $request->user()->id, 403);
+        abort_unless($request->user(), 403);
     }
 }
