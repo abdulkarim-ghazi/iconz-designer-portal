@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
 
         User::firstOrCreate(
             ['email' => 'designer@iconz.local'],
-            ['name' => 'مصممة تجريبية', 'password' => Hash::make('password'), 'role' => 'designer']
+            ['name' => 'مصممة تجريبية', 'password' => Hash::make('password'), 'role' => 'designer', 'is_active' => false]
         );
     }
 }

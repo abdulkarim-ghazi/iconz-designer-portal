@@ -87,8 +87,6 @@ class RecordModuleController extends Controller
 
     private function updateDesignerData(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user()->isAdmin(), 403);
-
         $data = $request->validate([
             'designer_id' => ['required', 'exists:users,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
@@ -110,8 +108,6 @@ class RecordModuleController extends Controller
 
     private function updateWeeklyFollowup(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user()->isAdmin(), 403);
-
         foreach ($request->input('weekly', []) as $row) {
             WeeklyEntry::updateOrCreate(
                 ['designer_record_id' => $record->id, 'week_label' => $row['week_label']],
@@ -131,8 +127,6 @@ class RecordModuleController extends Controller
 
     private function updatePerformanceNotes(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user()->isAdmin(), 403);
-
         foreach ($request->input('logs', []) as $row) {
             if (blank($row['note'] ?? null)) {
                 continue;
@@ -162,11 +156,7 @@ class RecordModuleController extends Controller
 
     private function designers(Request $request)
     {
-        if ($request->user()->isAdmin()) {
-            return User::where('role', 'designer')->orderBy('name')->get();
-        }
-
-        return collect([$request->user()]);
+        return User::where('role', 'designer')->orderBy('name')->get();
     }
 
     private function logChange(Request $request, DesignerRecord $record, string $action, string $summary, array $changes = []): void

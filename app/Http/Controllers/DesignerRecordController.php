@@ -52,8 +52,6 @@ class DesignerRecordController extends Controller
 
     public function create(Request $request): View
     {
-        abort_unless($request->user()->isAdmin(), 403);
-
         return view('records.form', [
             'record' => new DesignerRecord(['current_month' => 'month1', 'project_status' => 'new']),
             'designers' => $this->designers($request),
@@ -63,8 +61,6 @@ class DesignerRecordController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
-
         $data = $this->validatedCreateRecord($request);
         $designerId = $this->resolveDesignerForCreate($request);
 
@@ -285,11 +281,7 @@ class DesignerRecordController extends Controller
 
     private function designers(Request $request)
     {
-        if ($request->user()->isAdmin()) {
-            return User::where('role', 'designer')->orderBy('name')->get();
-        }
-
-        return collect([$request->user()]);
+        return User::where('role', 'designer')->orderBy('name')->get();
     }
 
     private function logChange(DesignerRecord $record, Request $request, string $action, string $summary, array $changes = []): void
