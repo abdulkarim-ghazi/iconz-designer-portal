@@ -60,6 +60,7 @@ class DesignerRecordController extends Controller
         $data = $this->validatedCreateRecord($request);
         $data['created_by'] = $request->user()->id;
         $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
+        $data['job_title'] = $data['job_title'] ?? 'مصمم / مصممة';
         $data['project_status'] = $data['project_status'] ?? 'new';
 
         $record = DesignerRecord::create($data);
@@ -155,12 +156,10 @@ class DesignerRecordController extends Controller
         return $request->validate([
             'designer_id' => ['required', 'exists:users,id'],
             'employee_name' => ['nullable', 'string', 'max:255'],
-            'job_title' => ['required', 'string', 'max:255'],
+            'job_title' => ['nullable', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
             'manager_name' => ['nullable', 'string', 'max:255'],
             'trial_period' => ['required', 'string', 'max:255'],
-            'current_salary' => ['nullable', 'numeric', 'min:0'],
-            'proposed_raise' => ['nullable', 'string', 'max:255'],
             'current_month' => ['required', 'in:month1,month2,month3'],
             'customer_name' => ['nullable', 'string', 'max:255'],
             'project_name' => ['nullable', 'string', 'max:255'],

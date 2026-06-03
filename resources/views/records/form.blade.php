@@ -21,6 +21,7 @@
     <div class="actions">
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
         <a class="btn" href="{{ route('designers.create') }}">إنشاء مصمم جديد</a>
+        <a class="btn" href="{{ route('modules.index', 'designer-data') }}">تعديل بيانات المصمم</a>
     </div>
 </header>
 
@@ -41,8 +42,8 @@
 
     <section class="panel">
         <span class="eyebrow">الربط الأساسي</span>
-        <h2>المصمم ومرحلة المتابعة</h2>
-        <p class="muted">هذا هو الرابط المركزي. كل متابعة أسبوعية أو ملاحظة أداء ستتصل بهذا الملف.</p>
+        <h2>المصمم وملف المتابعة</h2>
+        <p class="muted">هنا تختار المصمم وتحدد فترة المتابعة فقط. بيانات المصمم التفصيلية تعدل من موديول بيانات المصمم.</p>
         <div class="form-grid">
             <div class="field">
                 <label>المصمم</label>
@@ -53,21 +54,25 @@
                     @endforeach
                 </select>
             </div>
-            <div class="field"><label>اسم الموظف الظاهر في الملف</label><input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}" placeholder="اتركه فارغاً لاستخدام اسم المصمم"></div>
-            <div class="field"><label>المسمى الوظيفي</label><input name="job_title" value="{{ old('job_title', $record->job_title ?: 'مصمم / مصممة') }}" required></div>
-            <div class="field"><label>تاريخ المباشرة</label><input type="date" name="start_date" value="{{ old('start_date', optional($record->start_date)->format('Y-m-d')) }}"></div>
-            <div class="field"><label>المدير المباشر</label><input name="manager_name" value="{{ old('manager_name', $record->manager_name) }}" placeholder="مدير التصميم"></div>
+            <div class="field"><label>اسم ظاهر داخل ملف المتابعة</label><input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}" placeholder="اختياري، اتركه فارغاً لاستخدام اسم المصمم"></div>
+            @if(! $isCreate)
+                <div class="field"><label>المسمى الوظيفي</label><input name="job_title" value="{{ old('job_title', $record->job_title ?: 'مصمم / مصممة') }}" required></div>
+            @endif
+            <div class="field"><label>تاريخ بداية المتابعة</label><input type="date" name="start_date" value="{{ old('start_date', optional($record->start_date)->format('Y-m-d')) }}"></div>
+            <div class="field"><label>المسؤول عن المتابعة</label><input name="manager_name" value="{{ old('manager_name', $record->manager_name) }}" placeholder="مدير التصميم"></div>
             <div class="field"><label>مدة المتابعة</label><input name="trial_period" value="{{ old('trial_period', $record->trial_period ?: '3 أشهر') }}" required></div>
             <div class="field"><label>مرحلة التقييم الحالية</label><select name="current_month">@foreach($monthLabels as $key => $label)<option value="{{ $key }}" @selected(old('current_month', $record->current_month) === $key)>{{ $label }}</option>@endforeach</select></div>
-            <div class="field"><label>الراتب الحالي</label><input type="number" step="0.01" name="current_salary" value="{{ old('current_salary', $record->current_salary) }}"></div>
-            <div class="field"><label>الزيادة المقترحة</label><input name="proposed_raise" value="{{ old('proposed_raise', $record->proposed_raise) }}"></div>
+            @if(! $isCreate)
+                <div class="field"><label>الراتب الحالي</label><input type="number" step="0.01" name="current_salary" value="{{ old('current_salary', $record->current_salary) }}"></div>
+                <div class="field"><label>الزيادة المقترحة</label><input name="proposed_raise" value="{{ old('proposed_raise', $record->proposed_raise) }}"></div>
+            @endif
         </div>
     </section>
 
     <section class="panel">
         <span class="eyebrow">اختياري</span>
         <h2>ربط الملف بزبون أو مشروع</h2>
-        <p class="muted">استخدم هذه الحقول إذا كانت فترة المتابعة مرتبطة بمشروع أو زبون محدد.</p>
+        <p class="muted">استخدم هذه الحقول إذا كان ملف المتابعة مرتبطاً بزبون أو مشروع محدد. ليست بديلاً عن المتابعة الأسبوعية.</p>
         <div class="form-grid">
             <div class="field"><label>اسم الزبون</label><input name="customer_name" value="{{ old('customer_name', $record->customer_name) }}"></div>
             <div class="field"><label>اسم المشروع</label><input name="project_name" value="{{ old('project_name', $record->project_name) }}"></div>
