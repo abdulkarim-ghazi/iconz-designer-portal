@@ -18,23 +18,31 @@
     $evalByMonth = $record->monthlyEvaluations->keyBy('month_key');
 @endphp
 
-@section('title', $mode === 'create' ? 'إضافة سجل' : 'تعديل سجل')
+@section('title', $mode === 'create' ? 'إضافة ملف متابعة' : 'تعديل ملف متابعة')
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">إدخال بيانات المصمم</span>
-        <h1>{{ $mode === 'create' ? 'إضافة سجل جديد' : 'تعديل السجل' }}</h1>
-        <p class="muted">هذه البيانات تحفظ في قاعدة البيانات وتظهر للإدارة مباشرة.</p>
+        <span class="eyebrow">موديول الإدخال والتعديل</span>
+        <h1>{{ $mode === 'create' ? 'إضافة ملف متابعة جديد' : 'تعديل ملف المتابعة' }}</h1>
+        <p class="muted">النموذج مقسم حسب طريقة العمل: بيانات المصمم، الزبون والمشروع، المتابعة، التقييم، ملاحظات الأداء، ثم قرار الإدارة.</p>
+    </div>
+    <div class="actions">
+        <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
     </div>
 </header>
+
+@if($errors->any())
+    <div class="alert">يوجد حقول تحتاج مراجعة قبل الحفظ.</div>
+@endif
 
 <form method="POST" action="{{ $mode === 'create' ? route('records.store') : route('records.update', $record) }}" class="grid">
     @csrf
     @if($mode === 'edit') @method('PUT') @endif
 
     <section class="panel">
-        <h2>بيانات أساسية</h2>
+        <span class="eyebrow">موديول 01</span>
+        <h2>بيانات المصمم والتقييم</h2>
         <div class="form-grid">
             <div class="field">
                 <label>المصمم</label>
@@ -44,20 +52,24 @@
                     @endforeach
                 </select>
             </div>
-            <div class="field">
-                <label>اسم الموظفة الظاهر</label>
-                <input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}">
-            </div>
+            <div class="field"><label>اسم الموظفة الظاهر</label><input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}"></div>
             <div class="field"><label>المسمى الوظيفي</label><input name="job_title" value="{{ old('job_title', $record->job_title ?: 'مصمم / مصممة') }}" required></div>
             <div class="field"><label>تاريخ المباشرة</label><input type="date" name="start_date" value="{{ old('start_date', optional($record->start_date)->format('Y-m-d')) }}"></div>
             <div class="field"><label>المدير المباشر</label><input name="manager_name" value="{{ old('manager_name', $record->manager_name) }}"></div>
             <div class="field"><label>مدة التجربة</label><input name="trial_period" value="{{ old('trial_period', $record->trial_period ?: '3 أشهر') }}" required></div>
             <div class="field"><label>الراتب الحالي</label><input type="number" step="0.01" name="current_salary" value="{{ old('current_salary', $record->current_salary) }}"></div>
             <div class="field"><label>الزيادة المقترحة</label><input name="proposed_raise" value="{{ old('proposed_raise', $record->proposed_raise) }}"></div>
-            <div class="field"><label>الشهر الحالي</label><select name="current_month">@foreach($monthLabels as $key => $label)<option value="{{ $key }}" @selected(old('current_month', $record->current_month) === $key)>{{ $label }}</option>@endforeach</select></div>
-            <div class="field"><label>حالة المشروع</label><select name="project_status">@foreach(['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'] as $key=>$label)<option value="{{ $key }}" @selected(old('project_status', $record->project_status) === $key)>{{ $label }}</option>@endforeach</select></div>
+            <div class="field"><label>مرحلة التقييم الحالية</label><select name="current_month">@foreach($monthLabels as $key => $label)<option value="{{ $key }}" @selected(old('current_month', $record->current_month) === $key)>{{ $label }}</option>@endforeach</select></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <span class="eyebrow">موديول 02</span>
+        <h2>بيانات الزبون والمشروع</h2>
+        <div class="form-grid">
             <div class="field"><label>اسم الزبون</label><input name="customer_name" value="{{ old('customer_name', $record->customer_name) }}"></div>
             <div class="field"><label>اسم المشروع</label><input name="project_name" value="{{ old('project_name', $record->project_name) }}"></div>
+            <div class="field"><label>حالة الملف</label><select name="project_status">@foreach(['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'] as $key=>$label)<option value="{{ $key }}" @selected(old('project_status', $record->project_status) === $key)>{{ $label }}</option>@endforeach</select></div>
             <div class="field full"><label>طلب الزبون</label><textarea name="customer_request">{{ old('customer_request', $record->customer_request) }}</textarea></div>
             <div class="field full"><label>ملاحظات المصمم</label><textarea name="designer_notes">{{ old('designer_notes', $record->designer_notes) }}</textarea></div>
             <div class="field full"><label>ملخص الإدارة</label><textarea name="manager_summary">{{ old('manager_summary', $record->manager_summary) }}</textarea></div>
@@ -65,7 +77,8 @@
     </section>
 
     <section class="panel">
-        <h2>Scoreboard أسبوعي</h2>
+        <span class="eyebrow">موديول 03</span>
+        <h2>المتابعة الأسبوعية</h2>
         <div class="table-wrap">
             <table>
                 <thead><tr><th>الأسبوع</th><th>المشروع</th><th>إيجابي</th><th>سلبي</th><th>مرونة</th><th>خطأ إنتاجي</th><th>ملاحظة الإدارة</th></tr></thead>
@@ -88,6 +101,7 @@
     </section>
 
     <section class="panel">
+        <span class="eyebrow">موديول 04</span>
         <h2>التقييم الشهري</h2>
         @foreach($monthLabels as $monthKey => $monthLabel)
             @php($eval = $evalByMonth->get($monthKey))
@@ -108,14 +122,15 @@
                 </table>
             </div>
             <div class="field full">
-                <label>إجابة المدير / خلاصة {{ $monthLabel }}</label>
+                <label>خلاصة المدير / {{ $monthLabel }}</label>
                 <textarea name="evaluations[{{ $monthKey }}][manager_answers][summary]">{{ $eval?->manager_answers['summary'] ?? '' }}</textarea>
             </div>
         @endforeach
     </section>
 
     <section class="panel">
-        <h2>السجلات والملاحظات</h2>
+        <span class="eyebrow">موديول 05</span>
+        <h2>ملاحظات الأداء والعمل</h2>
         @for($i = 0; $i < 3; $i++)
             @php($log = $record->activityLogs[$i] ?? null)
             <div class="form-grid" style="margin-bottom:12px">
@@ -130,7 +145,8 @@
     </section>
 
     <section class="panel">
-        <h2>قرار الإدارة</h2>
+        <span class="eyebrow">موديول 06</span>
+        <h2>قرار الإدارة والخطة القادمة</h2>
         <div class="form-grid">
             <div class="field"><label>القرار النهائي</label><input name="final_decision" value="{{ old('final_decision', $record->final_decision ?: 'لم يتم اتخاذ القرار') }}"></div>
             <div class="field"><label>تاريخ القرار</label><input type="date" name="decision_date" value="{{ old('decision_date', optional($record->decision_date)->format('Y-m-d')) }}"></div>
@@ -140,7 +156,7 @@
     </section>
 
     <div class="actions">
-        <button class="btn primary" type="submit">حفظ السجل</button>
+        <button class="btn primary" type="submit">حفظ ملف المتابعة</button>
         <a class="btn" href="{{ route('records.index') }}">رجوع</a>
     </div>
 </form>

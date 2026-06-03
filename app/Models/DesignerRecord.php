@@ -69,6 +69,11 @@ class DesignerRecord extends Model
         return $this->hasMany(RecordDocument::class);
     }
 
+    public function changes(): HasMany
+    {
+        return $this->hasMany(RecordChange::class);
+    }
+
     public function totalScore(): int
     {
         return (int) round($this->monthlyEvaluations->avg('total_score') ?: 0);

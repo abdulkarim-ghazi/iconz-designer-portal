@@ -7,20 +7,20 @@
     $errors = $record->weeklyEntries->where('production_error', true)->count() + $record->activityLogs->where('type', 'خطأ إنتاجي')->count();
 @endphp
 
-@section('title', 'سجل '.$record->employee_name)
+@section('title', 'ملف متابعة - '.$record->employee_name)
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">{{ $record->designer?->name }}</span>
+        <span class="eyebrow">ملف متابعة كامل</span>
         <h1>{{ $record->employee_name }}</h1>
         <p class="muted">{{ $record->customer_name ?: 'بدون زبون محدد' }} · {{ $record->project_name ?: 'بدون مشروع محدد' }}</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل</a>
-        <a class="btn" href="{{ route('records.index') }}">رجوع للجدول</a>
+        <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل الملف</a>
+        <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
         @if(auth()->user()->isAdmin())
-            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف السجل؟')">
+            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف ملف المتابعة؟')">
                 @csrf @method('DELETE')
                 <button class="btn danger" type="submit">حذف</button>
             </form>
@@ -30,35 +30,55 @@
 
 <div class="grid metrics">
     <div class="card metric"><span>متوسط التقييم</span><strong>{{ $avg }}%</strong></div>
-    <div class="card metric"><span>الشهر الحالي</span><strong>{{ $monthLabels[$record->current_month] }}</strong></div>
+    <div class="card metric"><span>مرحلة التقييم</span><strong>{{ $monthLabels[$record->current_month] }}</strong></div>
     <div class="card metric"><span>أخطاء إنتاجية</span><strong>{{ $errors }}</strong></div>
-    <div class="card metric"><span>حالة المشروع</span><strong>{{ $statusLabels[$record->project_status] }}</strong></div>
+    <div class="card metric"><span>حالة الملف</span><strong>{{ $statusLabels[$record->project_status] }}</strong></div>
 </div>
 
-<div class="grid two" style="margin-top:16px">
-    <section class="panel">
-        <h2>بيانات الزبون والمشروع</h2>
-        <p><strong>طلب الزبون:</strong></p>
-        <p class="muted">{{ $record->customer_request ?: 'لا يوجد' }}</p>
-        <p><strong>ملاحظات المصمم:</strong></p>
-        <p class="muted">{{ $record->designer_notes ?: 'لا يوجد' }}</p>
-        <p><strong>ملخص الإدارة:</strong></p>
-        <p class="muted">{{ $record->manager_summary ?: 'لا يوجد' }}</p>
+<div class="grid three" style="margin-top:16px">
+    <section class="panel module-card">
+        <span class="eyebrow">موديول 01</span>
+        <h2>بيانات المصمم</h2>
+        <p class="muted">المسمى: {{ $record->job_title }}</p>
+        <p class="muted">المدير: {{ $record->manager_name ?: '-' }}</p>
+        <p class="muted">تاريخ المباشرة: {{ optional($record->start_date)->format('Y-m-d') ?: '-' }}</p>
     </section>
-    <section class="panel">
+    <section class="panel module-card">
+        <span class="eyebrow">موديول 02</span>
+        <h2>الزبون والمشروع</h2>
+        <p class="muted">الزبون: {{ $record->customer_name ?: '-' }}</p>
+        <p class="muted">المشروع: {{ $record->project_name ?: '-' }}</p>
+        <p class="muted">الحالة: {{ $statusLabels[$record->project_status] }}</p>
+    </section>
+    <section class="panel module-card">
+        <span class="eyebrow">موديول 03</span>
         <h2>قرار الإدارة</h2>
         <p><span class="badge gold">{{ $record->final_decision }}</span></p>
         <p class="muted">{{ $record->decision_reason ?: 'لم يكتب سبب القرار بعد.' }}</p>
-        <p><strong>الخطة القادمة:</strong></p>
-        <p class="muted">{{ $record->next_plan ?: 'لا توجد خطة مسجلة.' }}</p>
     </section>
 </div>
 
 <section class="panel" style="margin-top:16px">
-    <h2>Scoreboard أسبوعي</h2>
+    <h2>طلب الزبون وملاحظات العمل</h2>
+    <div class="grid two">
+        <div>
+            <p><strong>طلب الزبون</strong></p>
+            <p class="muted">{{ $record->customer_request ?: 'لا يوجد' }}</p>
+        </div>
+        <div>
+            <p><strong>ملاحظات المصمم</strong></p>
+            <p class="muted">{{ $record->designer_notes ?: 'لا يوجد' }}</p>
+        </div>
+    </div>
+    <p><strong>ملخص الإدارة</strong></p>
+    <p class="muted">{{ $record->manager_summary ?: 'لا يوجد' }}</p>
+</section>
+
+<section class="panel" style="margin-top:16px">
+    <h2>المتابعة الأسبوعية</h2>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>الأسبوع</th><th>المشروع</th><th>إيجابي</th><th>سلبي</th><th>مرونة</th><th>خطأ إنتاجي</th><th>ملاحظة الإدارة</th></tr></thead>
+            <thead><tr><th>الأسبوع</th><th>المشروع</th><th>نقطة إيجابية</th><th>نقطة سلبية</th><th>مرونة</th><th>خطأ إنتاجي</th><th>ملاحظة الإدارة</th></tr></thead>
             <tbody>
                 @forelse($record->weeklyEntries as $row)
                     <tr>
@@ -71,7 +91,7 @@
                         <td>{{ $row->manager_note ?: '-' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="muted">لا توجد أسابيع مسجلة.</td></tr>
+                    <tr><td colspan="7" class="muted">لا توجد متابعة أسبوعية مسجلة.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -84,36 +104,38 @@
         <table>
             <thead><tr><th>الشهر</th><th>المجموع</th><th>ملاحظات الإدارة</th></tr></thead>
             <tbody>
-                @foreach($record->monthlyEvaluations as $eval)
+                @forelse($record->monthlyEvaluations as $eval)
                     <tr>
                         <td>{{ $monthLabels[$eval->month_key] }}</td>
                         <td><span class="badge green">{{ $eval->total_score }}%</span></td>
                         <td>{{ $eval->manager_answers['summary'] ?? '-' }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr><td colspan="3" class="muted">لا توجد تقييمات بعد.</td></tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </section>
 
 <section class="panel" style="margin-top:16px">
-    <h2>السجلات والملاحظات</h2>
+    <h2>ملاحظات الأداء والعمل</h2>
     <div class="grid">
         @forelse($record->activityLogs as $log)
-            <div class="card panel">
+            <div class="timeline-item">
                 <span class="badge {{ $log->type === 'خطأ إنتاجي' ? 'red' : 'green' }}">{{ $log->type }}</span>
                 <strong>{{ $log->project ?: 'بدون مشروع' }}</strong>
                 <p class="muted">{{ $log->note }}</p>
-                <small class="muted">{{ optional($log->logged_at)->format('Y-m-d') }} · تأثير: {{ $log->impact ?: '-' }}</small>
+                <small>{{ optional($log->logged_at)->format('Y-m-d') }} · تأثير: {{ $log->impact ?: '-' }}</small>
             </div>
         @empty
-            <p class="muted">لا توجد ملاحظات مسجلة.</p>
+            <p class="muted">لا توجد ملاحظات أداء مسجلة.</p>
         @endforelse
     </div>
 </section>
 
 <section class="panel" style="margin-top:16px">
-    <h2>الوثائق</h2>
+    <h2>الوثائق والمعاينة</h2>
     <form method="POST" action="{{ route('records.documents.store', $record) }}" enctype="multipart/form-data" class="form-grid" style="margin-bottom:14px">
         @csrf
         <div class="field"><label>عنوان اختياري</label><input name="title" placeholder="مثال: ملف إنتاج، صورة مرجعية، موافقة الزبون"></div>
@@ -143,6 +165,28 @@
             </div>
         @empty
             <p class="muted">لا توجد وثائق بعد.</p>
+        @endforelse
+    </div>
+</section>
+
+<section class="panel" style="margin-top:16px">
+    <h2>سجل التغييرات داخل الملف</h2>
+    <div class="timeline">
+        @forelse($record->changes->sortByDesc('created_at') as $change)
+            <div class="timeline-item">
+                <span class="badge blue">{{ $change->action }}</span>
+                <strong>{{ $change->summary }}</strong>
+                <p class="muted">بواسطة: {{ $change->user?->name ?: 'مستخدم محذوف' }}</p>
+                <small>{{ $change->created_at->format('Y-m-d H:i') }}</small>
+                @if(! empty($change->changes))
+                    <details style="margin-top:8px">
+                        <summary class="muted">عرض تفاصيل التغيير</summary>
+                        <pre style="white-space:pre-wrap; direction:ltr; text-align:left">{{ json_encode($change->changes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                    </details>
+                @endif
+            </div>
+        @empty
+            <p class="muted">لا يوجد سجل تغييرات بعد.</p>
         @endforelse
     </div>
 </section>

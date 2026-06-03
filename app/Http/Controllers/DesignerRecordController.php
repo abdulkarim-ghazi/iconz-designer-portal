@@ -60,22 +60,32 @@ class DesignerRecordController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedRecord($request);
+
         if (! $request->user()->isAdmin()) {
             $data['designer_id'] = $request->user()->id;
         }
+
         $data['created_by'] = $request->user()->id;
         $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
 
         $record = DesignerRecord::create($data);
         $this->syncChildren($record, $request);
+        $this->logChange($record, $request, 'created', 'تم إنشاء ملف المتابعة.', $data);
 
-        return redirect()->route('records.show', $record)->with('status', 'تم إنشاء السجل بنجاح.');
+        return redirect()->route('records.show', $record)->with('status', 'تم إنشاء ملف المتابعة بنجاح.');
     }
 
     public function show(Request $request, DesignerRecord $record): View
     {
         $this->ensureAccess($request, $record);
-        $record->load(['designer', 'weeklyEntries', 'monthlyEvaluations', 'activityLogs', 'documents.uploader']);
+        $record->load([
+            'designer',
+            'weeklyEntries',
+            'monthlyEvaluations',
+            'activityLogs',
+            'documents.uploader',
+            'changes.user',
+        ]);
 
         return view('records.show', ['record' => $record]);
     }
@@ -96,14 +106,24 @@ class DesignerRecordController extends Controller
     {
         $this->ensureAccess($request, $record);
         $data = $this->validatedRecord($request);
+
         if (! $request->user()->isAdmin()) {
             unset($data['designer_id']);
         }
 
-        $record->update($data);
+        $record->fill($data);
+        $dirty = $record->getDirty();
+        $record->save();
         $this->syncChildren($record, $request);
+        $this->logChange(
+            $record,
+            $request,
+            'updated',
+            empty($dirty) ? 'تم حفظ الملف دون تغيير بياناته الأساسية.' : 'تم تعديل بيانات الملف الأساسية.',
+            $dirty
+        );
 
-        return redirect()->route('records.show', $record)->with('status', 'تم تحديث السجل.');
+        return redirect()->route('records.show', $record)->with('status', 'تم تحديث ملف المتابعة.');
     }
 
     public function destroy(Request $request, DesignerRecord $record): RedirectResponse
@@ -111,7 +131,7 @@ class DesignerRecordController extends Controller
         $this->ensureAccess($request, $record, adminOnly: true);
         $record->delete();
 
-        return redirect()->route('records.index')->with('status', 'تم حذف السجل.');
+        return redirect()->route('records.index')->with('status', 'تم حذف ملف المتابعة.');
     }
 
     private function validatedRecord(Request $request): array
@@ -141,6 +161,7 @@ class DesignerRecordController extends Controller
 
     private function syncChildren(DesignerRecord $record, Request $request): void
     {
+        $touchedWeekly = false;
         foreach ($request->input('weekly', []) as $row) {
             WeeklyEntry::updateOrCreate(
                 ['designer_record_id' => $record->id, 'week_label' => $row['week_label']],
@@ -153,8 +174,10 @@ class DesignerRecordController extends Controller
                     'manager_note' => $row['manager_note'] ?? null,
                 ]
             );
+            $touchedWeekly = true;
         }
 
+        $touchedEvaluations = false;
         foreach ($request->input('evaluations', []) as $monthKey => $row) {
             $scores = [];
             foreach ($this->scoreFields as $field => $max) {
@@ -170,8 +193,10 @@ class DesignerRecordController extends Controller
                     'manager_answers' => $row['manager_answers'] ?? [],
                 ]
             );
+            $touchedEvaluations = true;
         }
 
+        $touchedNotes = false;
         foreach ($request->input('logs', []) as $row) {
             if (blank($row['note'] ?? null)) {
                 continue;
@@ -187,6 +212,17 @@ class DesignerRecordController extends Controller
                     'logged_at' => $row['logged_at'] ?? now()->toDateString(),
                 ]
             );
+            $touchedNotes = true;
+        }
+
+        $childrenSummary = array_filter([
+            $touchedWeekly ? 'المتابعة الأسبوعية' : null,
+            $touchedEvaluations ? 'التقييمات الشهرية' : null,
+            $touchedNotes ? 'ملاحظات العمل' : null,
+        ]);
+
+        if ($childrenSummary && $request->routeIs('records.update')) {
+            $this->logChange($record, $request, 'modules_updated', 'تم حفظ موديولات: '.implode('، ', $childrenSummary).'.');
         }
     }
 
@@ -197,6 +233,16 @@ class DesignerRecordController extends Controller
         }
 
         return collect([$request->user()]);
+    }
+
+    private function logChange(DesignerRecord $record, Request $request, string $action, string $summary, array $changes = []): void
+    {
+        $record->changes()->create([
+            'user_id' => $request->user()->id,
+            'action' => $action,
+            'summary' => $summary,
+            'changes' => $changes,
+        ]);
     }
 
     private function ensureAccess(Request $request, DesignerRecord $record, bool $adminOnly = false): void

@@ -64,10 +64,16 @@ th { color: var(--muted); background: rgba(255,255,255,.04); font-size: 12px; }
 .badge.green { color: #bff6da; border-color: rgba(47,212,131,.28); background: rgba(47,212,131,.09); }
 .badge.red { color: #ffd5d5; border-color: rgba(255,91,91,.34); background: rgba(255,91,91,.09); }
 .badge.gold { color: #ffe3a2; border-color: rgba(255,194,71,.32); background: rgba(255,194,71,.09); }
+.badge.blue { color: #d2e8ff; border-color: rgba(85,167,255,.32); background: rgba(85,167,255,.09); }
 .alert { margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,194,71,.25); background: rgba(255,194,71,.07); color: #ffe7ad; }
 .doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .doc-preview { min-height: 150px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.04); }
 .doc-preview img, .doc-preview iframe { width: 100%; height: 180px; object-fit: cover; border: 0; }
+.module-card { display: block; min-height: 160px; }
+.module-card h2 { margin: 10px 0 8px; }
+.timeline { display: grid; gap: 10px; }
+.timeline-item { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.035); }
+.timeline-item small { color: var(--muted); }
 .login-page { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
 .login-card { width: min(460px, 100%); }
 .error { color: #ffd5d5; font-size: 12px; }

@@ -12,13 +12,15 @@
             <aside class="sidebar">
                 <div class="brand">
                     <div class="logo"><span>i</span>Conz <small>Portal</small></div>
-                    <p>برنامج متابعة المصممين وتوثيق التعامل مع الزبائن والإرسال للإدارة.</p>
+                    <p>منظومة متابعة المصممين، طلبات الزبائن، الوثائق، التقييمات، وسجل التغييرات.</p>
                 </div>
                 <nav class="nav">
-                    <a class="{{ request()->routeIs('records.*') ? 'active' : '' }}" href="{{ route('records.index') }}"><span>السجلات</span><b>01</b></a>
-                    <a class="{{ request()->routeIs('handbook') ? 'active' : '' }}" href="{{ route('handbook') }}"><span>دليل المصممة</span><b>02</b></a>
+                    <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span>لوحة المتابعة</span><b>01</b></a>
+                    <a class="{{ request()->routeIs('records.index') || request()->routeIs('records.show') || request()->routeIs('records.edit') ? 'active' : '' }}" href="{{ route('records.index') }}"><span>ملفات المتابعة</span><b>02</b></a>
+                    <a class="{{ request()->routeIs('records.create') ? 'active' : '' }}" href="{{ route('records.create') }}"><span>إضافة ملف جديد</span><b>03</b></a>
+                    <a class="{{ request()->routeIs('handbook') ? 'active' : '' }}" href="{{ route('handbook') }}"><span>دليل المصممة</span><b>04</b></a>
                     @if(auth()->user()->isAdmin())
-                        <a class="{{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><span>إدارة المستخدمين</span><b>03</b></a>
+                        <a class="{{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><span>إدارة المستخدمين</span><b>05</b></a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

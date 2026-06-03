@@ -1,25 +1,30 @@
 @extends('layouts.app')
 
-@section('title', 'سجلات المصممين')
+@section('title', 'ملفات المتابعة')
+
+@php
+    $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
+    $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
+@endphp
 
 @section('content')
-@php($statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'])
 <header class="topbar">
     <div>
-        <span class="eyebrow">iConz Designer Performance Portal</span>
-        <h1>سجلات المصممين</h1>
-        <p class="muted">كل سجل يظهر كصف في الجدول، وعند اختياره تفتح صفحة كاملة للتفاصيل والوثائق والتقييم.</p>
+        <span class="eyebrow">موديول ملفات المتابعة</span>
+        <h1>كل ملفات المتابعة</h1>
+        <p class="muted">هذا الجدول هو نقطة الإدارة الرئيسية: كل صف يمثل ملف متابعة مستقل لزبون أو مشروع، ويفتح صفحة كاملة عند اختياره.</p>
     </div>
     <div class="actions">
-        <a class="btn primary" href="{{ route('records.create') }}">إضافة سجل</a>
+        <a class="btn primary" href="{{ route('records.create') }}">إضافة ملف جديد</a>
+        <a class="btn" href="{{ route('dashboard') }}">لوحة المتابعة</a>
     </div>
 </header>
 
 <div class="panel">
     <form method="GET" class="form-grid" style="margin-bottom:14px">
         <div class="field full">
-            <label>بحث بالموظفة أو الزبون أو المشروع</label>
-            <input name="search" value="{{ request('search') }}" placeholder="اكتب كلمة للبحث">
+            <label>بحث باسم المصمم أو الزبون أو المشروع</label>
+            <input name="search" value="{{ request('search') }}" placeholder="مثال: اسم الزبون، المشروع، أو المصمم">
         </div>
     </form>
     <div class="table-wrap">
@@ -29,10 +34,10 @@
                     <th>المصمم</th>
                     <th>الزبون</th>
                     <th>المشروع</th>
-                    <th>الحالة</th>
-                    <th>الشهر</th>
+                    <th>حالة الملف</th>
+                    <th>مرحلة التقييم</th>
                     <th>متوسط التقييم</th>
-                    <th>وثائق</th>
+                    <th>الوثائق</th>
                     <th>آخر تحديث</th>
                 </tr>
             </thead>
@@ -43,13 +48,13 @@
                         <td>{{ $record->customer_name ?: '-' }}</td>
                         <td>{{ $record->project_name ?: '-' }}</td>
                         <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
-                        <td>{{ ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'][$record->current_month] }}</td>
+                        <td>{{ $monthLabels[$record->current_month] }}</td>
                         <td><span class="badge green">{{ $record->totalScore() }}%</span></td>
                         <td>{{ $record->documents_count }}</td>
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="muted">لا توجد سجلات بعد.</td></tr>
+                    <tr><td colspan="8" class="muted">لا توجد ملفات متابعة بعد. ابدأ من زر إضافة ملف جديد.</td></tr>
                 @endforelse
             </tbody>
         </table>

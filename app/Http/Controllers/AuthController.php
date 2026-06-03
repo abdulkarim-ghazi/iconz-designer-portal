@@ -26,7 +26,7 @@ class AuthController extends Controller
         if (Auth::attempt([...$credentials, 'is_active' => true], $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('records.index'));
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()

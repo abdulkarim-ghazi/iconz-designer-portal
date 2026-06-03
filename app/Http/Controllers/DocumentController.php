@@ -33,6 +33,13 @@ class DocumentController extends Controller
             ]);
         }
 
+        $record->changes()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'documents_uploaded',
+            'summary' => 'تم رفع وثائق جديدة للملف.',
+            'changes' => ['count' => count($request->file('documents', []))],
+        ]);
+
         return back()->with('status', 'تم رفع الوثائق.');
     }
 
@@ -46,8 +53,17 @@ class DocumentController extends Controller
     public function destroy(Request $request, RecordDocument $document): RedirectResponse
     {
         $this->ensureAccess($request, $document->record);
+        $record = $document->record;
+        $originalName = $document->original_name;
         Storage::disk('public')->delete($document->path);
         $document->delete();
+
+        $record->changes()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'document_deleted',
+            'summary' => 'تم حذف وثيقة من الملف.',
+            'changes' => ['document' => $originalName],
+        ]);
 
         return back()->with('status', 'تم حذف الوثيقة.');
     }
