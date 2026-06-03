@@ -12,11 +12,7 @@ class DashboardController extends Controller
     {
         $records = DesignerRecord::query()
             ->with(['designer', 'monthlyEvaluations'])
-            ->withCount('documents');
-
-        if (! $request->user()->isAdmin()) {
-            $records->where('designer_id', $request->user()->id);
-        }
+            ->withCount(['documents', 'weeklyEntries', 'activityLogs']);
 
         $base = clone $records;
 
@@ -25,6 +21,12 @@ class DashboardController extends Controller
             'openRecords' => (clone $base)->whereIn('project_status', ['new', 'in_progress', 'waiting_customer', 'sent'])->count(),
             'sentRecords' => (clone $base)->whereIn('project_status', ['sent', 'approved', 'closed'])->count(),
             'recentRecords' => $records->latest()->limit(6)->get(),
+            'designerPerformance' => DesignerRecord::query()
+                ->with(['designer', 'monthlyEvaluations'])
+                ->withCount(['weeklyEntries', 'activityLogs', 'documents'])
+                ->latest()
+                ->limit(12)
+                ->get(),
         ]);
     }
 }

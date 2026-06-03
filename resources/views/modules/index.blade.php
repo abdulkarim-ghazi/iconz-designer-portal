@@ -28,6 +28,24 @@
         </div>
     </form>
 
+    <div class="form-grid" style="margin-bottom:14px">
+        <div class="field">
+            <label>فتح سريع حسب المصمم</label>
+            <select id="quickRecordSelect">
+                <option value="">اختر سجل مصمم</option>
+                @foreach($records as $record)
+                    <option value="{{ route('modules.edit', [$module, $record]) }}">
+                        {{ $record->employee_name }}{{ $record->project_name ? ' - '.$record->project_name : '' }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="field">
+            <label>&nbsp;</label>
+            <button class="btn primary" type="button" onclick="if(document.getElementById('quickRecordSelect').value) window.location = document.getElementById('quickRecordSelect').value">فتح الموديول</button>
+        </div>
+    </div>
+
     <div class="table-wrap">
         <table>
             <thead>

@@ -21,7 +21,7 @@
     </div>
 </header>
 
-<form method="POST" action="{{ route('modules.update', [$module, $record]) }}" class="grid">
+<form method="POST" action="{{ route('modules.update', [$module, $record]) }}" class="grid" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
@@ -91,6 +91,17 @@
                     <div class="field full"><label>الملاحظة</label><textarea name="logs[{{ $i }}][note]">{{ $log?->note }}</textarea></div>
                 </div>
             @endfor
+        </section>
+    @endif
+
+    @if(in_array($module, ['weekly-followup', 'performance-notes'], true))
+        <section class="panel">
+            <h2>ملفات أو صور داعمة</h2>
+            <p class="muted">ارفع صوراً، PDF، أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل الملف الكامل للمصمم.</p>
+            <div class="form-grid">
+                <div class="field"><label>عنوان الملفات</label><input name="support_title" placeholder="مثال: صورة خطأ، ملف موافقة، لقطة متابعة"></div>
+                <div class="field"><label>اختيار الملفات</label><input type="file" name="support_files[]" multiple></div>
+            </div>
         </section>
     @endif
 

@@ -62,6 +62,40 @@
 </div>
 
 <section class="panel" style="margin-top:16px">
+    <h2>نتائج المصممين للمدير</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>المصمم</th>
+                    <th>مرحلة المتابعة</th>
+                    <th>متوسط التقييم</th>
+                    <th>متابعات أسبوعية</th>
+                    <th>ملاحظات أداء</th>
+                    <th>ملفات داعمة</th>
+                    <th>فتح</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($designerPerformance as $record)
+                    <tr>
+                        <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->job_title }}</span></td>
+                        <td>{{ ['month1'=>'الشهر الأول','month2'=>'الشهر الثاني','month3'=>'الشهر الثالث'][$record->current_month] }}</td>
+                        <td><span class="badge green">{{ $record->totalScore() }}%</span></td>
+                        <td>{{ $record->weekly_entries_count }}</td>
+                        <td>{{ $record->activity_logs_count }}</td>
+                        <td>{{ $record->documents_count }}</td>
+                        <td><a class="btn" href="{{ route('records.show', $record) }}">الملف الكامل</a></td>
+                    </tr>
+                @empty
+                    <tr><td colspan="7" class="muted">لا توجد نتائج بعد. أنشئ سجل مصمم أولاً.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel" style="margin-top:16px">
     <h2>آخر سجلات المصممين</h2>
     <div class="table-wrap">
         <table>

@@ -33,10 +33,6 @@ class DesignerRecordController extends Controller
             ->withCount('documents')
             ->latest();
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('designer_id', $request->user()->id);
-        }
-
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
                 $builder->where('employee_name', 'like', "%{$search}%")
@@ -110,19 +106,6 @@ class DesignerRecordController extends Controller
     {
         $this->ensureAccess($request, $record);
         $data = $this->validatedRecord($request);
-
-        if (! $request->user()->isAdmin()) {
-            unset(
-                $data['designer_id'],
-                $data['current_salary'],
-                $data['proposed_raise'],
-                $data['manager_summary'],
-                $data['final_decision'],
-                $data['decision_date'],
-                $data['decision_reason'],
-                $data['next_plan']
-            );
-        }
 
         $record->fill($data);
         $dirty = $record->getDirty();
@@ -301,6 +284,6 @@ class DesignerRecordController extends Controller
             return;
         }
 
-        abort_unless($request->user()->isAdmin() || $record->designer_id === $request->user()->id, 403);
+        abort_unless($request->user(), 403);
     }
 }

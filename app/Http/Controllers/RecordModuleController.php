@@ -35,10 +35,6 @@ class RecordModuleController extends Controller
         $meta = $this->moduleMeta($module);
         $query = DesignerRecord::with('designer')->latest();
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('designer_id', $request->user()->id);
-        }
-
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
                 $builder->where('employee_name', 'like', "%{$search}%")
@@ -79,6 +75,8 @@ class RecordModuleController extends Controller
             'performance-notes' => $this->updatePerformanceNotes($request, $record),
             default => abort(404),
         };
+
+        $this->storeSupportFiles($request, $record, $module);
 
         return redirect()
             ->route('modules.edit', [$module, $record])
@@ -154,6 +152,36 @@ class RecordModuleController extends Controller
         return $this->modules[$module];
     }
 
+    private function storeSupportFiles(Request $request, DesignerRecord $record, string $module): void
+    {
+        $request->validate([
+            'support_title' => ['nullable', 'string', 'max:255'],
+            'support_files' => ['nullable', 'array'],
+            'support_files.*' => ['file', 'max:20480', 'mimes:jpg,jpeg,png,webp,pdf,txt,doc,docx,xls,xlsx'],
+        ]);
+
+        if (! $request->hasFile('support_files')) {
+            return;
+        }
+
+        foreach ($request->file('support_files', []) as $file) {
+            $path = $file->store("records/{$record->id}", 'public');
+            $record->documents()->create([
+                'uploaded_by' => $request->user()->id,
+                'title' => $request->input('support_title') ?: $this->modules[$module]['title'],
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize(),
+            ]);
+        }
+
+        $this->logChange($request, $record, 'support_files_uploaded', 'تم رفع ملفات داعمة من موديول '.$this->modules[$module]['title'].'.', [
+            'module' => $module,
+            'count' => count($request->file('support_files', [])),
+        ]);
+    }
+
     private function designers(Request $request)
     {
         return User::where('role', 'designer')->orderBy('name')->get();
@@ -171,6 +199,6 @@ class RecordModuleController extends Controller
 
     private function ensureAccess(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user()->isAdmin() || $record->designer_id === $request->user()->id, 403);
+        abort_unless($request->user(), 403);
     }
 }
