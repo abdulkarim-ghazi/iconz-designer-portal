@@ -163,7 +163,7 @@ class RecordModuleController extends Controller
     private function designers(Request $request)
     {
         if ($request->user()->isAdmin()) {
-            return User::where('role', 'designer')->where('is_active', true)->orderBy('name')->get();
+            return User::where('role', 'designer')->orderBy('name')->get();
         }
 
         return collect([$request->user()]);

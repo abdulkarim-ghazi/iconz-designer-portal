@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\WeeklyEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DesignerRecordController extends Controller
@@ -50,6 +52,8 @@ class DesignerRecordController extends Controller
 
     public function create(Request $request): View
     {
+        abort_unless($request->user()->isAdmin(), 403);
+
         return view('records.form', [
             'record' => new DesignerRecord(['current_month' => 'month1', 'project_status' => 'new']),
             'designers' => $this->designers($request),
@@ -59,20 +63,24 @@ class DesignerRecordController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $this->validatedRecord($request);
+        abort_unless($request->user()->isAdmin(), 403);
 
-        if (! $request->user()->isAdmin()) {
-            $data['designer_id'] = $request->user()->id;
-        }
+        $data = $this->validatedCreateRecord($request);
+        $designerId = $this->resolveDesignerForCreate($request);
 
+        $data['designer_id'] = $designerId;
         $data['created_by'] = $request->user()->id;
-        $data['employee_name'] = $data['employee_name'] ?: User::find($data['designer_id'])->name;
+        $data['employee_name'] = $data['employee_name'] ?: User::find($designerId)->name;
+        $data['project_status'] = 'new';
+
+        unset($data['new_designer_name'], $data['new_designer_email']);
 
         $record = DesignerRecord::create($data);
-        $this->syncChildren($record, $request);
-        $this->logChange($record, $request, 'created', 'تم إنشاء ملف المتابعة.', $data);
+        $this->logChange($record, $request, 'created', 'تم إنشاء سجل مصمم جديد.', $data);
 
-        return redirect()->route('records.show', $record)->with('status', 'تم إنشاء ملف المتابعة بنجاح.');
+        return redirect()
+            ->route('records.show', $record)
+            ->with('status', 'تم إنشاء سجل المصمم. أضف المتابعة الأسبوعية أو ملاحظات الأداء من القوائم المستقلة.');
     }
 
     public function show(Request $request, DesignerRecord $record): View
@@ -108,8 +116,8 @@ class DesignerRecordController extends Controller
         $data = $this->validatedRecord($request);
 
         if (! $request->user()->isAdmin()) {
-            unset($data['designer_id']);
             unset(
+                $data['designer_id'],
                 $data['current_salary'],
                 $data['proposed_raise'],
                 $data['manager_summary'],
@@ -143,6 +151,23 @@ class DesignerRecordController extends Controller
         return redirect()->route('records.index')->with('status', 'تم حذف ملف المتابعة.');
     }
 
+    private function validatedCreateRecord(Request $request): array
+    {
+        return $request->validate([
+            'designer_id' => ['required', 'string'],
+            'new_designer_name' => ['nullable', 'string', 'max:255'],
+            'new_designer_email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            'employee_name' => ['nullable', 'string', 'max:255'],
+            'job_title' => ['required', 'string', 'max:255'],
+            'start_date' => ['nullable', 'date'],
+            'manager_name' => ['nullable', 'string', 'max:255'],
+            'trial_period' => ['required', 'string', 'max:255'],
+            'current_salary' => ['nullable', 'numeric', 'min:0'],
+            'proposed_raise' => ['nullable', 'string', 'max:255'],
+            'current_month' => ['required', 'in:month1,month2,month3'],
+        ]);
+    }
+
     private function validatedRecord(Request $request): array
     {
         return $request->validate([
@@ -166,6 +191,29 @@ class DesignerRecordController extends Controller
             'decision_reason' => ['nullable', 'string'],
             'next_plan' => ['nullable', 'string'],
         ]);
+    }
+
+    private function resolveDesignerForCreate(Request $request): int
+    {
+        if ($request->input('designer_id') !== 'new') {
+            $request->validate(['designer_id' => ['required', 'exists:users,id']]);
+
+            return (int) $request->input('designer_id');
+        }
+
+        $request->validate(['new_designer_name' => ['required', 'string', 'max:255']]);
+
+        $name = $request->string('new_designer_name')->toString();
+        $email = $request->input('new_designer_email')
+            ?: Str::slug($name).'-'.Str::lower(Str::random(6)).'@iconz.local';
+
+        return User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => Hash::make(Str::random(32)),
+            'role' => 'designer',
+            'is_active' => false,
+        ])->id;
     }
 
     private function syncChildren(DesignerRecord $record, Request $request): void
@@ -230,15 +278,15 @@ class DesignerRecordController extends Controller
             $touchedNotes ? 'ملاحظات العمل' : null,
         ]);
 
-        if ($childrenSummary && $request->routeIs('records.update')) {
-            $this->logChange($record, $request, 'modules_updated', 'تم حفظ موديولات: '.implode('، ', $childrenSummary).'.');
+        if ($childrenSummary && request()->routeIs('records.update')) {
+            $this->logChange($record, request(), 'modules_updated', 'تم حفظ موديولات: '.implode('، ', $childrenSummary).'.');
         }
     }
 
     private function designers(Request $request)
     {
         if ($request->user()->isAdmin()) {
-            return User::where('role', 'designer')->where('is_active', true)->orderBy('name')->get();
+            return User::where('role', 'designer')->orderBy('name')->get();
         }
 
         return collect([$request->user()]);
