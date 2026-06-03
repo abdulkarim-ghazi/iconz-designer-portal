@@ -32,13 +32,28 @@
         <h2>ملفات المتابعة</h2>
         <p class="muted">جدول لكل ملفات المصممين مع البحث والانتقال إلى الملف الكامل.</p>
     </a>
-    <a class="panel module-card" href="{{ route('records.create') }}">
+    <a class="panel module-card" href="{{ route('modules.index', 'designer-data') }}">
         <span class="eyebrow">02</span>
+        <h2>بيانات المصمم</h2>
+        <p class="muted">يدخلها رئيس القسم لمصمم معين، وتبقى مرتبطة بملفه الكامل.</p>
+    </a>
+    <a class="panel module-card" href="{{ route('modules.index', 'weekly-followup') }}">
+        <span class="eyebrow">03</span>
+        <h2>المتابعة الأسبوعية</h2>
+        <p class="muted">يختار رئيس القسم المصمم ثم يسجل متابعة الأسابيع.</p>
+    </a>
+    <a class="panel module-card" href="{{ route('modules.index', 'performance-notes') }}">
+        <span class="eyebrow">04</span>
+        <h2>ملاحظات الأداء</h2>
+        <p class="muted">ملاحظات أداء وعمل مرتبطة بمصمم وملف متابعة محدد.</p>
+    </a>
+    <a class="panel module-card" href="{{ route('records.create') }}">
+        <span class="eyebrow">05</span>
         <h2>إدخال ملف جديد</h2>
-        <p class="muted">نموذج واضح لبيانات الزبون، المشروع، المصمم، والمتابعة.</p>
+        <p class="muted">إنشاء ملف متابعة يربط المصمم بالزبون والمشروع.</p>
     </a>
     <a class="panel module-card" href="{{ route('handbook') }}">
-        <span class="eyebrow">03</span>
+        <span class="eyebrow">06</span>
         <h2>دليل العمل</h2>
         <p class="muted">مرجع المصممة لفهم المطلوب ومعايير التقييم.</p>
     </a>
