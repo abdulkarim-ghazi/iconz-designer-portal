@@ -6,7 +6,12 @@ use Illuminate\View\View;
 
 class HandbookController extends Controller
 {
-    public function show(): View
+    public function plan(): View
+    {
+        return view('plan.show');
+    }
+
+    public function handbook(): View
     {
         return view('handbook.show');
     }
