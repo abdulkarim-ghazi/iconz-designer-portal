@@ -5,6 +5,7 @@
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
     $canManage = auth()->user()->canManageDesignerData();
+    $requiresDesignerStart = in_array($module, ['weekly-followup', 'performance-notes'], true);
 @endphp
 
 @section('content')
@@ -13,41 +14,50 @@
         <span class="eyebrow">{{ $canManage ? 'موديول تنفيذي' : 'موديول مراقبة' }}</span>
         <h1>{{ $meta['title'] }}</h1>
         <p class="muted">{{ $meta['description'] }}</p>
-        <p class="muted">المسؤول عن الإدخال: {{ $meta['owner'] }}. الأدمن يراجع هذا الجزء ضمن الملفات ولا ينشئ بيانات تشغيلية.</p>
+        <p class="muted">المسؤول عن الإدخال: {{ $meta['owner'] }}. الأدمن يراجع فقط.</p>
     </div>
     <div class="actions">
-        @if($canManage)
-            <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
-        @endif
+        <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
     </div>
 </header>
 
+@if($canManage && $requiresDesignerStart)
+    <section class="panel" style="margin-bottom:16px">
+        <h2>اختيار المصمم</h2>
+        <p class="muted">اختر المصمم أولاً. إذا لم يكن لديه ملف متابعة مفتوح، سينشئ النظام ملفاً أساسياً ويربط هذا الموديول به.</p>
+        @if($designers->isEmpty())
+            <div class="alert">
+                لا يوجد مصممون بعد. أضف مصمماً أولاً من قسم المصممين.
+                <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إضافة مصمم</a>
+            </div>
+        @else
+            <form method="POST" action="{{ route('modules.start', $module) }}" class="form-grid">
+                @csrf
+                <div class="field full">
+                    <label>المصمم</label>
+                    <select name="designer_id" required>
+                        <option value="">اختر المصمم</option>
+                        @foreach($designers as $designer)
+                            <option value="{{ $designer->id }}">{{ $designer->name }} - {{ $designer->job_title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="field full">
+                    <button class="btn primary" type="submit">{{ $module === 'weekly-followup' ? 'إنشاء / فتح متابعة أسبوعية' : 'إنشاء / فتح ملاحظة أداء' }}</button>
+                </div>
+            </form>
+        @endif
+    </section>
+@endif
+
 <section class="panel">
     <form method="GET" class="form-grid" style="margin-bottom:14px">
         <div class="field full">
-            <label>اختيار المصمم أو الملف</label>
+            <label>بحث باسم المصمم أو الزبون أو المشروع</label>
             <input name="search" value="{{ request('search') }}" placeholder="ابحث باسم المصمم، الزبون، أو المشروع">
         </div>
     </form>
-
-    <div class="form-grid" style="margin-bottom:14px">
-        <div class="field">
-            <label>فتح سريع حسب المصمم</label>
-            <select id="quickRecordSelect">
-                <option value="">اختر سجل مصمم</option>
-                @foreach($records as $record)
-                    <option value="{{ route('modules.edit', [$module, $record]) }}">
-                        {{ $record->employee_name }}{{ $record->project_name ? ' - '.$record->project_name : '' }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="field">
-            <label>&nbsp;</label>
-            <button class="btn primary" type="button" onclick="if(document.getElementById('quickRecordSelect').value) window.location = document.getElementById('quickRecordSelect').value">{{ $canManage ? 'فتح الموديول' : 'عرض الموديول' }}</button>
-        </div>
-    </div>
 
     <div class="table-wrap">
         <table>
@@ -69,7 +79,7 @@
                         <td>{{ $record->project_name ?: '-' }}</td>
                         <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
-                        <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('modules.edit', [$module, $record]) }}">{{ $canManage ? 'فتح للتعديل' : 'عرض' }}</a></td>
+                        <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('modules.edit', [$module, $record]) }}">{{ $canManage ? 'فتح' : 'عرض' }}</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="muted">لا توجد ملفات متابعة بعد.</td></tr>

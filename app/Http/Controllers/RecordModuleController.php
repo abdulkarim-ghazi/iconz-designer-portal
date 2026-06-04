@@ -14,18 +14,18 @@ class RecordModuleController extends Controller
 {
     private array $modules = [
         'designer-data' => [
-            'title' => 'بيانات المصمم',
-            'description' => 'يدخلها مدير التصميم لتعريف المصمم ومرحلة المتابعة.',
+            'title' => 'بيانات ملف المتابعة',
+            'description' => 'بيانات الملف المرتبطة بمصمم محدد. بيانات المصمم الأساسية تدار من قسم المصممين.',
             'owner' => 'مدير التصميم',
         ],
         'weekly-followup' => [
             'title' => 'متابعة المصمم الأسبوعية',
-            'description' => 'يسجلها مدير التصميم لمصمم معين حسب الأسابيع والمشاريع.',
+            'description' => 'ابدأ باختيار المصمم، ثم سجل المتابعة الأسبوعية المرتبطة به.',
             'owner' => 'مدير التصميم',
         ],
         'performance-notes' => [
             'title' => 'ملاحظات الأداء والعمل',
-            'description' => 'ملاحظات مرتبطة بمصمم معين: أداء، أخطاء، نقاط إيجابية، أو مواقف تحتاج متابعة.',
+            'description' => 'ابدأ باختيار المصمم، ثم أضف ملاحظة أداء أو خطأ أو نقطة إيجابية.',
             'owner' => 'مدير التصميم',
         ],
     ];
@@ -39,7 +39,8 @@ class RecordModuleController extends Controller
             $query->where(function ($builder) use ($search) {
                 $builder->where('employee_name', 'like', "%{$search}%")
                     ->orWhere('customer_name', 'like', "%{$search}%")
-                    ->orWhere('project_name', 'like', "%{$search}%");
+                    ->orWhere('project_name', 'like', "%{$search}%")
+                    ->orWhereHas('designer', fn ($designer) => $designer->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -47,7 +48,26 @@ class RecordModuleController extends Controller
             'module' => $module,
             'meta' => $meta,
             'records' => $query->paginate(15)->withQueryString(),
+            'designers' => $this->designers(),
         ]);
+    }
+
+    public function start(Request $request, string $module): RedirectResponse
+    {
+        abort_unless($request->user()->canManageDesignerData(), 403);
+        $this->moduleMeta($module);
+        abort_unless(in_array($module, ['weekly-followup', 'performance-notes'], true), 404);
+
+        $data = $request->validate([
+            'designer_id' => ['required', 'exists:designers,id'],
+        ]);
+
+        $record = $this->latestRecordForDesigner((int) $data['designer_id'])
+            ?: $this->createBasicRecord($request, Designer::findOrFail($data['designer_id']));
+
+        return redirect()
+            ->route('modules.edit', [$module, $record])
+            ->with('status', 'تم اختيار المصمم وفتح الموديول.');
     }
 
     public function edit(Request $request, string $module, DesignerRecord $record): View
@@ -70,7 +90,7 @@ class RecordModuleController extends Controller
         $this->moduleMeta($module);
 
         match ($module) {
-            'designer-data' => $this->updateDesignerData($request, $record),
+            'designer-data' => $this->updateRecordData($request, $record),
             'weekly-followup' => $this->updateWeeklyFollowup($request, $record),
             'performance-notes' => $this->updatePerformanceNotes($request, $record),
             default => abort(404),
@@ -83,7 +103,7 @@ class RecordModuleController extends Controller
             ->with('status', 'تم حفظ الموديول وربطه بملف المتابعة.');
     }
 
-    private function updateDesignerData(Request $request, DesignerRecord $record): void
+    private function updateRecordData(Request $request, DesignerRecord $record): void
     {
         $data = $request->validate([
             'designer_id' => ['required', 'exists:designers,id'],
@@ -101,7 +121,7 @@ class RecordModuleController extends Controller
         $record->fill($data);
         $dirty = $record->getDirty();
         $record->save();
-        $this->logChange($request, $record, 'designer_data_updated', 'تم تحديث بيانات المصمم.', $dirty);
+        $this->logChange($request, $record, 'record_data_updated', 'تم تحديث بيانات ملف المتابعة.', $dirty);
     }
 
     private function updateWeeklyFollowup(Request $request, DesignerRecord $record): void
@@ -150,6 +170,35 @@ class RecordModuleController extends Controller
         abort_unless(isset($this->modules[$module]), 404);
 
         return $this->modules[$module];
+    }
+
+    private function latestRecordForDesigner(int $designerId): ?DesignerRecord
+    {
+        return DesignerRecord::where('designer_id', $designerId)
+            ->where('project_status', '!=', 'closed')
+            ->latest()
+            ->first();
+    }
+
+    private function createBasicRecord(Request $request, Designer $designer): DesignerRecord
+    {
+        $record = DesignerRecord::create([
+            'designer_id' => $designer->id,
+            'created_by' => $request->user()->id,
+            'employee_name' => $designer->name,
+            'job_title' => $designer->job_title,
+            'start_date' => optional($designer->start_date)->format('Y-m-d'),
+            'manager_name' => $designer->direct_manager,
+            'trial_period' => $designer->trial_period,
+            'current_salary' => $designer->current_salary,
+            'proposed_raise' => $designer->proposed_raise,
+            'current_month' => $designer->current_month,
+            'project_status' => 'new',
+        ]);
+
+        $this->logChange($request, $record, 'created_from_module', 'تم إنشاء ملف متابعة أساسي عند اختيار المصمم من الموديول.');
+
+        return $record;
     }
 
     private function storeSupportFiles(Request $request, DesignerRecord $record, string $module): void

@@ -60,13 +60,8 @@
             <h2>ملاحظات الأداء والعمل</h2>
             <p class="muted">اربط ملاحظة أداء أو خطأ أو نقطة إيجابية بمصمم وملف متابعة محدد.</p>
         </a>
-        <a class="panel module-card" href="{{ route('modules.index', 'designer-data') }}">
-            <span class="eyebrow">05</span>
-            <h2>بيانات المصمم</h2>
-            <p class="muted">تعديل بيانات مصمم أو ملف متابعة موجود دون خلطها مع الملاحظات.</p>
-        </a>
         <a class="panel module-card" href="{{ route('records.index') }}">
-            <span class="eyebrow">06</span>
+            <span class="eyebrow">05</span>
             <h2>كل ملفات المتابعة</h2>
             <p class="muted">الملف الكامل يجمع البيانات والمتابعة والملاحظات والوثائق وسجل التغييرات.</p>
         </a>

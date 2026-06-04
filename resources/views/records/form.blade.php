@@ -22,7 +22,7 @@
     <div class="actions">
         <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
         <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
-        <a class="btn" href="{{ route('modules.index', 'designer-data') }}">بيانات المصمم</a>
+        <a class="btn" href="{{ route('designers.index') }}">بيانات المصممين</a>
     </div>
 </header>
 

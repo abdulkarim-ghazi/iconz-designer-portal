@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/records/{record}/edit', [DesignerRecordController::class, 'edit'])->name('records.edit');
         Route::put('/records/{record}', [DesignerRecordController::class, 'update'])->name('records.update');
         Route::delete('/records/{record}', [DesignerRecordController::class, 'destroy'])->name('records.destroy');
+        Route::post('/modules/{module}/start', [RecordModuleController::class, 'start'])->name('modules.start');
         Route::put('/modules/{module}/records/{record}', [RecordModuleController::class, 'update'])->name('modules.update');
         Route::post('/records/{record}/documents', [DocumentController::class, 'store'])->name('records.documents.store');
         Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
