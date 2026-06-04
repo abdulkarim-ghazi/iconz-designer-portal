@@ -5,6 +5,7 @@
 @php
     $weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
     $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
+    $activeEvaluationMonth = old('active_month', $record->current_month ?: 'month1');
     $weeklyByLabel = $record->weeklyEntries->keyBy('week_label');
     $monthlyByKey = $record->monthlyEvaluations->keyBy('month_key');
     $evaluationRows = [
@@ -116,8 +117,14 @@
             <section class="panel">
                 <h2>التقييم الشهري</h2>
                 <p class="muted">يضعه مدير التصميم لمصمم معين. كل شهر محفوظ وحده، والنتيجة من 100 حسب الأوزان المعتمدة.</p>
+                <div class="module-tabs" data-month-tabs>
+                    @foreach($monthLabels as $monthKey => $monthLabel)
+                        <a href="#{{ $monthKey }}" class="{{ $activeEvaluationMonth === $monthKey ? 'active' : '' }}" data-month-tab="{{ $monthKey }}">{{ $monthLabel }}</a>
+                    @endforeach
+                </div>
                 @foreach($monthLabels as $monthKey => $monthLabel)
                     @php($evaluation = $monthlyByKey->get($monthKey))
+                    <div class="form-pane {{ $activeEvaluationMonth === $monthKey ? 'active' : '' }}" data-month-pane="{{ $monthKey }}">
                     <div class="timeline-item" style="margin-top:14px">
                         <div class="topbar" style="margin-bottom:10px">
                             <div>
@@ -145,6 +152,7 @@
                             <label>خلاصة مدير التصميم / {{ $monthLabel }}</label>
                             <textarea name="evaluations[{{ $monthKey }}][manager_answers][summary]">{{ old('evaluations.'.$monthKey.'.manager_answers.summary', $evaluation?->manager_answers['summary'] ?? '') }}</textarea>
                         </div>
+                    </div>
                     </div>
                 @endforeach
             </section>
@@ -189,3 +197,21 @@
     </div>
 </form>
 @endsection
+
+@push('scripts')
+@if($module === 'monthly-evaluation')
+<script>
+    document.addEventListener('click', event => {
+        const tab = event.target.closest('[data-month-tab]');
+        if (!tab) return;
+
+        event.preventDefault();
+        const selected = tab.dataset.monthTab;
+        document.querySelectorAll('[data-month-tab]').forEach(item => item.classList.toggle('active', item === tab));
+        document.querySelectorAll('[data-month-pane]').forEach(pane => {
+            pane.classList.toggle('active', pane.dataset.monthPane === selected);
+        });
+    });
+</script>
+@endif
+@endpush

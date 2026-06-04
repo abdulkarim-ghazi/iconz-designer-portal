@@ -78,8 +78,8 @@ th { color: var(--muted); background: rgba(255,255,255,.04); font-size: 12px; }
 .module-card { display: block; min-height: 160px; }
 .module-card h2 { margin: 10px 0 8px; }
 .module-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.module-tabs button { min-height: 40px; padding: 9px 12px; border-radius: 8px; color: var(--muted); background: rgba(255,255,255,.045); border: 1px solid var(--line); font-weight: 800; }
-.module-tabs button.active { color: #151515; background: linear-gradient(135deg, var(--orange), var(--amber)); border-color: transparent; }
+.module-tabs button, .module-tabs a { min-height: 40px; padding: 9px 12px; border-radius: 8px; color: var(--muted); background: rgba(255,255,255,.045); border: 1px solid var(--line); font-weight: 800; }
+.module-tabs button.active, .module-tabs a.active { color: #151515; background: linear-gradient(135deg, var(--orange), var(--amber)); border-color: transparent; }
 .form-pane { display: none; }
 .form-pane.active { display: block; }
 .pane-footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
