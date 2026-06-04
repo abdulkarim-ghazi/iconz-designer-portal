@@ -6,6 +6,18 @@
     $weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
     $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
     $weeklyByLabel = $record->weeklyEntries->keyBy('week_label');
+    $monthlyByKey = $record->monthlyEvaluations->keyBy('month_key');
+    $evaluationRows = [
+        'quality_score' => ['label' => 'جودة التصميم والإبداع', 'weight' => 15],
+        'details_score' => ['label' => 'دقة التفاصيل', 'weight' => 10],
+        'execution_score' => ['label' => 'قابلية التصميم للتنفيذ', 'weight' => 15],
+        'speed_score' => ['label' => 'سرعة الإنجاز والالتزام', 'weight' => 10],
+        'brief_score' => ['label' => 'فهم طلب الزبون', 'weight' => 10],
+        'production_score' => ['label' => 'ملفات الإنتاج والطباعة', 'weight' => 15],
+        'followup_score' => ['label' => 'المتابعة مع المعمل أو الموقع', 'weight' => 10],
+        'teamwork_score' => ['label' => 'التعاون مع الأقسام', 'weight' => 5],
+        'flexibility_score' => ['label' => 'المرونة والاستجابة', 'weight' => 10],
+    ];
     $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
@@ -100,7 +112,64 @@
             </section>
         @endif
 
-        @if(in_array($module, ['weekly-followup', 'performance-notes'], true))
+        @if($module === 'monthly-evaluation')
+            <section class="panel">
+                <h2>التقييم الشهري</h2>
+                <p class="muted">يضعه مدير التصميم لمصمم معين. كل شهر محفوظ وحده، والنتيجة من 100 حسب الأوزان المعتمدة.</p>
+                @foreach($monthLabels as $monthKey => $monthLabel)
+                    @php($evaluation = $monthlyByKey->get($monthKey))
+                    <div class="timeline-item" style="margin-top:14px">
+                        <div class="topbar" style="margin-bottom:10px">
+                            <div>
+                                <span class="eyebrow">{{ $monthLabel }}</span>
+                                <h2>نتيجة {{ $monthLabel }}</h2>
+                            </div>
+                            <span class="badge green">{{ $evaluation?->total_score ?: 0 }} / 100</span>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>المحور</th><th>الوزن</th><th>النقطة</th><th>ملاحظة</th></tr></thead>
+                                <tbody>
+                                    @foreach($evaluationRows as $field => $row)
+                                        <tr>
+                                            <td>{{ $row['label'] }}</td>
+                                            <td>/{{ $row['weight'] }}</td>
+                                            <td><input type="number" min="0" max="{{ $row['weight'] }}" name="evaluations[{{ $monthKey }}][{{ $field }}]" value="{{ old('evaluations.'.$monthKey.'.'.$field, $evaluation?->{$field} ?? 0) }}"></td>
+                                            <td><input name="evaluations[{{ $monthKey }}][notes][{{ $field }}]" value="{{ old('evaluations.'.$monthKey.'.notes.'.$field, $evaluation?->notes[$field] ?? '') }}"></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="field full" style="margin-top:12px">
+                            <label>خلاصة مدير التصميم / {{ $monthLabel }}</label>
+                            <textarea name="evaluations[{{ $monthKey }}][manager_answers][summary]">{{ old('evaluations.'.$monthKey.'.manager_answers.summary', $evaluation?->manager_answers['summary'] ?? '') }}</textarea>
+                        </div>
+                    </div>
+                @endforeach
+            </section>
+        @endif
+
+        @if($module === 'management-decision')
+            <section class="panel">
+                <h2>قرار الإدارة والزيادة</h2>
+                <p class="muted">هذا القسم خاص بخلاصة الإدارة بعد مراجعة المتابعة الأسبوعية، ملاحظات الأداء، والتقييم الشهري.</p>
+                <div class="form-grid">
+                    <div class="field"><label>الراتب الحالي</label><input type="number" step="0.01" name="current_salary" value="{{ old('current_salary', $record->current_salary) }}"></div>
+                    <div class="field"><label>الزيادة المقترحة</label><input name="proposed_raise" value="{{ old('proposed_raise', $record->proposed_raise) }}" placeholder="مثال: 100,000 أو 10%"></div>
+                    <div class="field"><label>القرار النهائي</label><select name="final_decision">
+                        @foreach(['لم يتم اتخاذ القرار','تثبيت المصممة','تمديد فترة المتابعة','زيادة مقترحة','لا توجد زيادة حالياً','إنهاء التجربة'] as $decision)
+                            <option value="{{ $decision }}" @selected(old('final_decision', $record->final_decision ?: 'لم يتم اتخاذ القرار') === $decision)>{{ $decision }}</option>
+                        @endforeach
+                    </select></div>
+                    <div class="field"><label>تاريخ القرار</label><input type="date" name="decision_date" value="{{ old('decision_date', optional($record->decision_date)->format('Y-m-d')) }}"></div>
+                    <div class="field full"><label>سبب القرار</label><textarea name="decision_reason">{{ old('decision_reason', $record->decision_reason) }}</textarea></div>
+                    <div class="field full"><label>الخطة القادمة</label><textarea name="next_plan">{{ old('next_plan', $record->next_plan) }}</textarea></div>
+                </div>
+            </section>
+        @endif
+
+        @if(in_array($module, ['weekly-followup', 'performance-notes', 'monthly-evaluation', 'management-decision'], true))
             <section class="panel">
                 <h2>ملفات أو صور داعمة</h2>
                 <p class="muted">ارفع صوراً أو PDF أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل الملف الكامل للمصمم.</p>

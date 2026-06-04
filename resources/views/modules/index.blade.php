@@ -5,7 +5,13 @@
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
     $canManage = auth()->user()->canManageDesignerData();
-    $requiresDesignerStart = in_array($module, ['weekly-followup', 'performance-notes'], true);
+    $requiresDesignerStart = in_array($module, ['weekly-followup', 'performance-notes', 'monthly-evaluation', 'management-decision'], true);
+    $startLabels = [
+        'weekly-followup' => 'إنشاء / فتح متابعة أسبوعية',
+        'performance-notes' => 'إنشاء / فتح ملاحظة أداء',
+        'monthly-evaluation' => 'إنشاء / فتح تقييم شهري',
+        'management-decision' => 'إنشاء / فتح قرار الإدارة والزيادة',
+    ];
 @endphp
 
 @section('content')
@@ -44,7 +50,7 @@
                     </select>
                 </div>
                 <div class="field full">
-                    <button class="btn primary" type="submit">{{ $module === 'weekly-followup' ? 'إنشاء / فتح متابعة أسبوعية' : 'إنشاء / فتح ملاحظة أداء' }}</button>
+                    <button class="btn primary" type="submit">{{ $startLabels[$module] }}</button>
                 </div>
             </form>
         @endif

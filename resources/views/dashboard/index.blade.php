@@ -60,8 +60,18 @@
             <h2>ملاحظات الأداء والعمل</h2>
             <p class="muted">اربط ملاحظة أداء أو خطأ أو نقطة إيجابية بمصمم وملف متابعة محدد.</p>
         </a>
-        <a class="panel module-card" href="{{ route('records.index') }}">
+        <a class="panel module-card" href="{{ route('modules.index', 'monthly-evaluation') }}">
             <span class="eyebrow">05</span>
+            <h2>التقييم الشهري</h2>
+            <p class="muted">اختر المصمم ثم سجل نقاط الشهر حسب المحاور والأوزان المعتمدة.</p>
+        </a>
+        <a class="panel module-card" href="{{ route('modules.index', 'management-decision') }}">
+            <span class="eyebrow">06</span>
+            <h2>قرار الإدارة والزيادة</h2>
+            <p class="muted">سجل قرار التثبيت أو التمديد أو الزيادة مع السبب والخطة القادمة.</p>
+        </a>
+        <a class="panel module-card" href="{{ route('records.index') }}">
+            <span class="eyebrow">07</span>
             <h2>كل ملفات المتابعة</h2>
             <p class="muted">الملف الكامل يجمع البيانات والمتابعة والملاحظات والوثائق وسجل التغييرات.</p>
         </a>

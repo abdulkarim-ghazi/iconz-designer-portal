@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Designer;
 use App\Models\DesignerRecord;
+use App\Models\MonthlyEvaluation;
 use App\Models\WeeklyEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,16 @@ class RecordModuleController extends Controller
         'performance-notes' => [
             'title' => 'ملاحظات الأداء والعمل',
             'description' => 'ابدأ باختيار المصمم، ثم أضف ملاحظة أداء أو خطأ أو نقطة إيجابية.',
+            'owner' => 'مدير التصميم',
+        ],
+        'monthly-evaluation' => [
+            'title' => 'التقييم الشهري',
+            'description' => 'اختر المصمم ثم قيّم الشهر الحالي أو أحد أشهر التجربة وفق المحاور المعتمدة.',
+            'owner' => 'مدير التصميم',
+        ],
+        'management-decision' => [
+            'title' => 'قرار الإدارة والزيادة',
+            'description' => 'اختر المصمم ثم سجل قرار التثبيت أو التمديد أو الزيادة مع سبب القرار والخطة القادمة.',
             'owner' => 'مدير التصميم',
         ],
     ];
@@ -56,7 +67,7 @@ class RecordModuleController extends Controller
     {
         abort_unless($request->user()->canManageDesignerData(), 403);
         $this->moduleMeta($module);
-        abort_unless(in_array($module, ['weekly-followup', 'performance-notes'], true), 404);
+        abort_unless(in_array($module, ['weekly-followup', 'performance-notes', 'monthly-evaluation', 'management-decision'], true), 404);
 
         $data = $request->validate([
             'designer_id' => ['required', 'exists:designers,id'],
@@ -74,7 +85,7 @@ class RecordModuleController extends Controller
     {
         $this->ensureAccess($request, $record);
         $meta = $this->moduleMeta($module);
-        $record->load(['weeklyEntries', 'activityLogs']);
+        $record->load(['weeklyEntries', 'activityLogs', 'monthlyEvaluations']);
 
         return view('modules.edit', [
             'module' => $module,
@@ -93,6 +104,8 @@ class RecordModuleController extends Controller
             'designer-data' => $this->updateRecordData($request, $record),
             'weekly-followup' => $this->updateWeeklyFollowup($request, $record),
             'performance-notes' => $this->updatePerformanceNotes($request, $record),
+            'monthly-evaluation' => $this->updateMonthlyEvaluation($request, $record),
+            'management-decision' => $this->updateManagementDecision($request, $record),
             default => abort(404),
         };
 
@@ -163,6 +176,79 @@ class RecordModuleController extends Controller
         }
 
         $this->logChange($request, $record, 'performance_notes_updated', 'تم تحديث ملاحظات الأداء والعمل.');
+    }
+
+    private function updateMonthlyEvaluation(Request $request, DesignerRecord $record): void
+    {
+        $data = $request->validate([
+            'evaluations' => ['required', 'array'],
+            'evaluations.*.quality_score' => ['nullable', 'integer', 'min:0', 'max:15'],
+            'evaluations.*.details_score' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'evaluations.*.execution_score' => ['nullable', 'integer', 'min:0', 'max:15'],
+            'evaluations.*.speed_score' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'evaluations.*.brief_score' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'evaluations.*.production_score' => ['nullable', 'integer', 'min:0', 'max:15'],
+            'evaluations.*.followup_score' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'evaluations.*.teamwork_score' => ['nullable', 'integer', 'min:0', 'max:5'],
+            'evaluations.*.flexibility_score' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'evaluations.*.notes' => ['nullable', 'array'],
+            'evaluations.*.notes.*' => ['nullable', 'string'],
+            'evaluations.*.manager_answers' => ['nullable', 'array'],
+            'evaluations.*.manager_answers.summary' => ['nullable', 'string'],
+        ]);
+
+        $scoreFields = [
+            'quality_score' => 15,
+            'details_score' => 10,
+            'execution_score' => 15,
+            'speed_score' => 10,
+            'brief_score' => 10,
+            'production_score' => 15,
+            'followup_score' => 10,
+            'teamwork_score' => 5,
+            'flexibility_score' => 10,
+        ];
+
+        foreach ($data['evaluations'] as $monthKey => $row) {
+            if (! in_array($monthKey, ['month1', 'month2', 'month3'], true)) {
+                continue;
+            }
+
+            $scores = [];
+            foreach ($scoreFields as $field => $max) {
+                $scores[$field] = min(max((int) ($row[$field] ?? 0), 0), $max);
+            }
+
+            MonthlyEvaluation::updateOrCreate(
+                ['designer_record_id' => $record->id, 'month_key' => $monthKey],
+                [
+                    ...$scores,
+                    'total_score' => array_sum($scores),
+                    'notes' => $row['notes'] ?? [],
+                    'manager_answers' => $row['manager_answers'] ?? [],
+                ]
+            );
+        }
+
+        $this->logChange($request, $record, 'monthly_evaluation_updated', 'تم تحديث التقييم الشهري.');
+    }
+
+    private function updateManagementDecision(Request $request, DesignerRecord $record): void
+    {
+        $data = $request->validate([
+            'current_salary' => ['nullable', 'numeric', 'min:0'],
+            'proposed_raise' => ['nullable', 'string', 'max:255'],
+            'final_decision' => ['nullable', 'string', 'max:255'],
+            'decision_date' => ['nullable', 'date'],
+            'decision_reason' => ['nullable', 'string'],
+            'next_plan' => ['nullable', 'string'],
+        ]);
+
+        $record->fill($data);
+        $dirty = $record->getDirty();
+        $record->save();
+
+        $this->logChange($request, $record, 'management_decision_updated', 'تم تحديث قرار الإدارة والزيادة.', $dirty);
     }
 
     private function moduleMeta(string $module): array
