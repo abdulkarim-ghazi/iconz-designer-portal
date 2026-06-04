@@ -15,28 +15,28 @@ class RecordModuleController extends Controller
 {
     private array $modules = [
         'designer-data' => [
-            'title' => 'بيانات سجل التقييم',
-            'description' => 'بيانات سجل التقييم المرتبطة بمصمم محدد. بيانات المصمم الأساسية تدار من قسم المصممين.',
+            'title' => 'بطاقة الموظفة',
+            'description' => 'بيانات الموظفة الأساسية. المتابعة والتقييم والسجلات وقرار الزيادة ترتبط بهذه البطاقة.',
             'owner' => 'مدير التصميم',
         ],
         'weekly-followup' => [
-            'title' => 'متابعة المصمم الأسبوعية',
-            'description' => 'ابدأ باختيار المصمم، ثم سجل المتابعة الأسبوعية المرتبطة به.',
+            'title' => 'Scoreboard أسبوعي',
+            'description' => 'ابدأ باختيار الموظفة، ثم سجل المتابعة الأسبوعية المرتبطة بها.',
             'owner' => 'مدير التصميم',
         ],
         'performance-notes' => [
-            'title' => 'ملاحظات الأداء والعمل',
-            'description' => 'ابدأ باختيار المصمم، ثم أضف ملاحظة أداء أو خطأ أو نقطة إيجابية.',
+            'title' => 'السجلات والملاحظات',
+            'description' => 'ابدأ باختيار الموظفة، ثم أضف ملاحظة أداء أو خطأ أو نقطة إيجابية.',
             'owner' => 'مدير التصميم',
         ],
         'monthly-evaluation' => [
             'title' => 'التقييم الشهري',
-            'description' => 'اختر المصمم ثم قيّم الشهر الحالي أو أحد أشهر التجربة وفق المحاور المعتمدة.',
+            'description' => 'اختر الموظفة ثم قيّم الشهر الحالي أو أحد أشهر التجربة وفق المحاور المعتمدة.',
             'owner' => 'مدير التصميم',
         ],
         'management-decision' => [
-            'title' => 'قرار الإدارة والزيادة',
-            'description' => 'اختر المصمم ثم سجل قرار التثبيت أو التمديد أو الزيادة مع سبب القرار والخطة القادمة.',
+            'title' => 'قرار الزيادة',
+            'description' => 'اختر الموظفة ثم سجل قرار التثبيت أو التمديد أو الزيادة مع سبب القرار والخطة القادمة.',
             'owner' => 'مدير التصميم',
         ],
     ];
@@ -78,7 +78,7 @@ class RecordModuleController extends Controller
 
         return redirect()
             ->route('modules.edit', [$module, $record])
-            ->with('status', 'تم اختيار المصمم وفتح الموديول.');
+            ->with('status', 'تم اختيار الموظفة وفتح الموديول.');
     }
 
     public function edit(Request $request, string $module, DesignerRecord $record): View
@@ -113,7 +113,7 @@ class RecordModuleController extends Controller
 
         return redirect()
             ->route('modules.edit', [$module, $record])
-            ->with('status', 'تم حفظ الموديول وربطه بسجل التقييم.');
+            ->with('status', 'تم حفظ الموديول وربطه ببطاقة الموظفة.');
     }
 
     private function updateRecordData(Request $request, DesignerRecord $record): void
@@ -134,7 +134,7 @@ class RecordModuleController extends Controller
         $record->fill($data);
         $dirty = $record->getDirty();
         $record->save();
-        $this->logChange($request, $record, 'record_data_updated', 'تم تحديث بيانات سجل التقييم.', $dirty);
+        $this->logChange($request, $record, 'record_data_updated', 'تم تحديث بيانات بطاقة الموظفة.', $dirty);
     }
 
     private function updateWeeklyFollowup(Request $request, DesignerRecord $record): void
@@ -175,7 +175,7 @@ class RecordModuleController extends Controller
             );
         }
 
-        $this->logChange($request, $record, 'performance_notes_updated', 'تم تحديث ملاحظات الأداء والعمل.');
+        $this->logChange($request, $record, 'performance_notes_updated', 'تم تحديث السجلات والملاحظات.');
     }
 
     private function updateMonthlyEvaluation(Request $request, DesignerRecord $record): void
@@ -248,7 +248,7 @@ class RecordModuleController extends Controller
         $dirty = $record->getDirty();
         $record->save();
 
-        $this->logChange($request, $record, 'management_decision_updated', 'تم تحديث قرار الإدارة والزيادة.', $dirty);
+        $this->logChange($request, $record, 'management_decision_updated', 'تم تحديث قرار الزيادة.', $dirty);
     }
 
     private function moduleMeta(string $module): array
@@ -282,7 +282,7 @@ class RecordModuleController extends Controller
             'project_status' => 'new',
         ]);
 
-        $this->logChange($request, $record, 'created_from_module', 'تم إنشاء سجل تقييم أساسي عند اختيار المصمم من الموديول.');
+        $this->logChange($request, $record, 'created_from_module', 'تم إنشاء نشاط أساسي عند اختيار الموظفة من الموديول.');
 
         return $record;
     }

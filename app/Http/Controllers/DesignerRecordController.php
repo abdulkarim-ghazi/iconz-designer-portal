@@ -70,11 +70,11 @@ class DesignerRecordController extends Controller
         $data['project_status'] = $data['project_status'] ?? 'new';
 
         $record = DesignerRecord::create($data);
-        $this->logChange($record, $request, 'created', 'تم إنشاء سجل تقييم جديد.', $data);
+        $this->logChange($record, $request, 'created', 'تم إنشاء نشاط مرتبط ببطاقة الموظفة.', $data);
 
         return redirect()
             ->route('records.show', $record)
-            ->with('status', 'تم إنشاء سجل التقييم. يمكنك الآن إضافة المتابعة الأسبوعية أو ملاحظات الأداء.');
+            ->with('status', 'تم حفظ النشاط. يمكنك الآن إضافة المتابعة الأسبوعية أو ملاحظات الأداء.');
     }
 
     public function show(Request $request, DesignerRecord $record): View
@@ -121,7 +121,7 @@ class DesignerRecordController extends Controller
             $dirty
         );
 
-        return redirect()->route('records.show', $record)->with('status', 'تم تحديث سجل التقييم.');
+        return redirect()->route('records.show', $record)->with('status', 'تم تحديث نشاط الموظفة.');
     }
 
     public function destroy(Request $request, DesignerRecord $record): RedirectResponse
@@ -129,7 +129,7 @@ class DesignerRecordController extends Controller
         abort_unless($request->user()->canManageDesignerData(), 403);
         $record->delete();
 
-        return redirect()->route('records.index')->with('status', 'تم حذف سجل التقييم.');
+        return redirect()->route('records.index')->with('status', 'تم حذف نشاط الموظفة.');
     }
 
     private function validatedCreateRecord(Request $request): array

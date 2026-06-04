@@ -10,7 +10,7 @@
         'weekly-followup' => 'إنشاء / فتح متابعة أسبوعية',
         'performance-notes' => 'إنشاء / فتح ملاحظة أداء',
         'monthly-evaluation' => 'إنشاء / فتح تقييم شهري',
-        'management-decision' => 'إنشاء / فتح قرار الإدارة والزيادة',
+        'management-decision' => 'إنشاء / فتح قرار الزيادة',
     ];
 @endphp
 
@@ -23,27 +23,26 @@
         <p class="muted">المسؤول عن الإدخال: {{ $meta['owner'] }}. الأدمن يراجع فقط.</p>
     </div>
     <div class="actions">
-        <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
-        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
+        <a class="btn" href="{{ route('designers.index') }}">بطاقات الموظفات</a>
     </div>
 </header>
 
 @if($canManage && $requiresDesignerStart)
     <section class="panel" style="margin-bottom:16px">
-        <h2>اختيار المصمم</h2>
-        <p class="muted">اختر المصمم أولاً. إذا لم يكن لديه سجل تقييم مفتوح، سينشئ النظام سجلاً أساسياً ويربط هذا الموديول به.</p>
+        <h2>اختيار الموظفة</h2>
+        <p class="muted">اختر الموظفة أولاً. إذا لم يكن لديها نشاط مفتوح، سينشئ النظام سياق عمل بسيطًا ويربط هذا الموديول ببطاقتها.</p>
         @if($designers->isEmpty())
             <div class="alert">
-                لا يوجد مصممون بعد. أضف مصمماً أولاً من قسم المصممين.
-                <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إضافة مصمم</a>
+                لا توجد موظفات بعد. أضف موظفة أولاً من بطاقة الموظفة.
+                <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إضافة موظفة</a>
             </div>
         @else
             <form method="POST" action="{{ route('modules.start', $module) }}" class="form-grid">
                 @csrf
                 <div class="field full">
-                    <label>المصمم</label>
+                    <label>الموظفة</label>
                     <select name="designer_id" required>
-                        <option value="">اختر المصمم</option>
+                        <option value="">اختر الموظفة</option>
                         @foreach($designers as $designer)
                             <option value="{{ $designer->id }}">{{ $designer->name }} - {{ $designer->job_title }}</option>
                         @endforeach
@@ -60,8 +59,8 @@
 <section class="panel">
     <form method="GET" class="form-grid" style="margin-bottom:14px">
         <div class="field full">
-            <label>بحث باسم المصمم أو الزبون أو المشروع</label>
-            <input name="search" value="{{ request('search') }}" placeholder="ابحث باسم المصمم، الزبون، أو المشروع">
+            <label>بحث باسم الموظفة أو الزبون أو المشروع</label>
+            <input name="search" value="{{ request('search') }}" placeholder="ابحث باسم الموظفة، الزبون، أو المشروع">
         </div>
     </form>
 
@@ -69,7 +68,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>المصمم</th>
+                    <th>الموظفة</th>
                     <th>الزبون</th>
                     <th>المشروع</th>
                     <th>حالة الملف</th>
@@ -88,7 +87,7 @@
                         <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('modules.edit', [$module, $record]) }}">{{ $canManage ? 'فتح' : 'عرض' }}</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="muted">لا توجد سجلات تقييم بعد.</td></tr>
+                    <tr><td colspan="6" class="muted">لا يوجد نشاط بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

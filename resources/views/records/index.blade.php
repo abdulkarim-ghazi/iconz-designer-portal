@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'سجلات التقييم')
+@section('title', 'نشاط الموظفات')
 
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
@@ -11,37 +11,33 @@
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">موديول سجلات التقييم</span>
-        <h1>كل سجلات التقييم</h1>
-        <p class="muted">كل صف يمثل دورة تقييم لمصمم، ويمكن فتحه لمراجعة المتابعة الأسبوعية والملاحظات والتقييم الشهري والقرار والوثائق وسجل التغييرات.</p>
+        <span class="eyebrow">نشاط مرتبط بالبطاقات</span>
+        <h1>نشاط الموظفات</h1>
+        <p class="muted">هذه صفحة داخلية لعرض سياقات العمل المرتبطة ببطاقات الموظفات، مثل زبون أو مشروع أو فترة متابعة.</p>
     </div>
     <div class="actions">
-        @if($canManage)
-            <a class="btn primary" href="{{ route('records.create') }}">إنشاء سجل تقييم</a>
-        @endif
-        <a class="btn" href="{{ route('dashboard') }}">لوحة المتابعة</a>
+        <a class="btn" href="{{ route('designers.index') }}">بطاقات الموظفات</a>
     </div>
 </header>
 
-<div class="panel">
+<section class="panel">
     <form method="GET" class="form-grid" style="margin-bottom:14px">
         <div class="field full">
-            <label>بحث باسم المصمم أو الزبون أو المشروع</label>
-            <input name="search" value="{{ request('search') }}" placeholder="مثال: اسم الزبون، المشروع، أو المصمم">
+            <label>بحث باسم الموظفة أو الزبون أو المشروع</label>
+            <input name="search" value="{{ request('search') }}" placeholder="ابحث باسم الموظفة، الزبون، أو المشروع">
         </div>
     </form>
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>المصمم</th>
+                    <th>الموظفة</th>
                     <th>الزبون</th>
                     <th>المشروع</th>
-                    <th>حالة الملف</th>
-                    <th>مرحلة التقييم</th>
+                    <th>الشهر</th>
                     <th>متوسط التقييم</th>
-                    <th>الوثائق</th>
-                    <th>آخر تحديث</th>
+                    <th>الحالة</th>
+                    <th>فتح</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,18 +46,17 @@
                         <td><strong>{{ $record->employee_name }}</strong><br><span class="muted">{{ $record->designer?->job_title }}</span></td>
                         <td>{{ $record->customer_name ?: '-' }}</td>
                         <td>{{ $record->project_name ?: '-' }}</td>
-                        <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
                         <td>{{ $monthLabels[$record->current_month] }}</td>
                         <td><span class="badge green">{{ $record->totalScore() }}%</span></td>
-                        <td>{{ $record->documents_count }}</td>
-                        <td>{{ $record->updated_at->format('Y-m-d') }}</td>
+                        <td><span class="badge gold">{{ $statusLabels[$record->project_status] }}</span></td>
+                        <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('records.show', $record) }}">فتح</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
+                    <tr><td colspan="7" class="muted">لا يوجد نشاط بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
     <div style="margin-top:14px">{{ $records->links() }}</div>
-</div>
+</section>
 @endsection

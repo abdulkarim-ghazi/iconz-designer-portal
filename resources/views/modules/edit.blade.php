@@ -31,7 +31,7 @@
     </div>
     <div class="actions">
         <a class="btn" href="{{ route('modules.index', $module) }}">رجوع للموديول</a>
-        <a class="btn" href="{{ route('records.show', $record) }}">السجل الكامل</a>
+        <a class="btn" href="{{ route('records.show', $record) }}">بطاقة النشاط</a>
     </div>
 </header>
 
@@ -46,11 +46,11 @@
     <fieldset @disabled(! $canManage) class="grid" style="border:0;padding:0;margin:0">
         @if($module === 'designer-data')
             <section class="panel">
-                <h2>بيانات المصمم</h2>
-                <p class="muted">هذا القسم يضعه مدير التصميم، وأي تغيير يظهر داخل السجل الكامل وسجل التغييرات.</p>
+                <h2>بطاقة الموظفة</h2>
+                <p class="muted">هذا القسم يضعه مدير التصميم، وأي تغيير يظهر داخل بطاقة النشاط وسجل التغييرات.</p>
                 <div class="form-grid">
                     <div class="field">
-                        <label>المصمم</label>
+                        <label>الموظفة</label>
                         <select name="designer_id" required>
                             @foreach($designers as $designer)
                                 <option value="{{ $designer->id }}" @selected(old('designer_id', $record->designer_id) == $designer->id)>{{ $designer->name }}</option>
@@ -71,8 +71,8 @@
 
         @if($module === 'weekly-followup')
             <section class="panel">
-                <h2>متابعة المصمم الأسبوعية</h2>
-                <p class="muted">يضعها مدير التصميم لمصمم معين، وترتبط بنفس سجل التقييم والزبون أو المشروع.</p>
+                <h2>Scoreboard أسبوعي</h2>
+                <p class="muted">يضعها مدير التصميم لموظفة معينة، وترتبط ببطاقتها والزبون أو المشروع.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>الأسبوع</th><th>المشروع</th><th>نقطة إيجابية</th><th>نقطة سلبية</th><th>مرونة</th><th>خطأ إنتاجي</th><th>ملاحظة مدير التصميم</th></tr></thead>
@@ -97,8 +97,8 @@
 
         @if($module === 'performance-notes')
             <section class="panel">
-                <h2>ملاحظات الأداء والعمل</h2>
-                <p class="muted">ملاحظات لمصمم معين: نقطة إيجابية، خطأ إنتاجي، أو ملاحظة عامة مرتبطة بالمشروع.</p>
+                <h2>السجلات والملاحظات</h2>
+                <p class="muted">ملاحظات لموظفة معينة: نقطة إيجابية، خطأ إنتاجي، أو ملاحظة عامة مرتبطة بالمشروع.</p>
                 @for($i = 0; $i < 5; $i++)
                     @php($log = $record->activityLogs[$i] ?? null)
                     <div class="form-grid" style="margin-bottom:12px">
@@ -116,7 +116,7 @@
         @if($module === 'monthly-evaluation')
             <section class="panel">
                 <h2>التقييم الشهري</h2>
-                <p class="muted">يضعه مدير التصميم لمصمم معين. كل شهر محفوظ وحده، والنتيجة من 100 حسب الأوزان المعتمدة.</p>
+                <p class="muted">يضعه مدير التصميم لموظفة معينة. كل شهر محفوظ وحده، والنتيجة من 100 حسب الأوزان المعتمدة.</p>
                 <div class="module-tabs" data-month-tabs>
                     @foreach($monthLabels as $monthKey => $monthLabel)
                         <a href="#{{ $monthKey }}" class="{{ $activeEvaluationMonth === $monthKey ? 'active' : '' }}" data-month-tab="{{ $monthKey }}">{{ $monthLabel }}</a>
@@ -160,7 +160,7 @@
 
         @if($module === 'management-decision')
             <section class="panel">
-                <h2>قرار الإدارة والزيادة</h2>
+                <h2>قرار الزيادة</h2>
                 <p class="muted">هذا القسم خاص بخلاصة الإدارة بعد مراجعة المتابعة الأسبوعية، ملاحظات الأداء، والتقييم الشهري.</p>
                 <div class="form-grid">
                     <div class="field"><label>الراتب الحالي</label><input type="number" step="0.01" name="current_salary" value="{{ old('current_salary', $record->current_salary) }}"></div>
@@ -180,7 +180,7 @@
         @if(in_array($module, ['weekly-followup', 'performance-notes', 'monthly-evaluation', 'management-decision'], true))
             <section class="panel">
                 <h2>ملفات أو صور داعمة</h2>
-                <p class="muted">ارفع صوراً أو PDF أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل السجل الكامل للمصمم.</p>
+                <p class="muted">ارفع صوراً أو PDF أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل بطاقة النشاط للموظفة.</p>
                 <div class="form-grid">
                     <div class="field"><label>عنوان الملفات</label><input name="support_title" placeholder="مثال: صورة خطأ، ملف موافقة، لقطة متابعة"></div>
                     <div class="field"><label>اختيار الملفات</label><input type="file" name="support_files[]" multiple></div>

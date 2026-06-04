@@ -8,12 +8,12 @@
     $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
-@section('title', 'سجل تقييم - '.$record->employee_name)
+@section('title', 'بطاقة نشاط - '.$record->employee_name)
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">سجل تقييم كامل</span>
+        <span class="eyebrow">بطاقة نشاط</span>
         <h1>{{ $record->employee_name }}</h1>
         <p class="muted">{{ $record->customer_name ?: 'بدون زبون محدد' }} · {{ $record->project_name ?: 'بدون مشروع محدد' }}</p>
     </div>
@@ -21,9 +21,9 @@
         @if($canManage)
             <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل السجل</a>
         @endif
-        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
+        <a class="btn" href="{{ route('designers.index') }}">بطاقات الموظفات</a>
         @if($canManage)
-            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف سجل التقييم؟')">
+            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف هذا النشاط؟')">
                 @csrf @method('DELETE')
                 <button class="btn danger" type="submit">حذف</button>
             </form>
@@ -45,7 +45,7 @@
 <div class="grid three" style="margin-top:16px">
     <section class="panel module-card">
         <span class="eyebrow">موديول 01</span>
-        <h2>بيانات المصمم</h2>
+        <h2>بطاقة الموظفة</h2>
         <p class="muted">المسمى: {{ $record->job_title }}</p>
         <p class="muted">المدير: {{ $record->manager_name ?: '-' }}</p>
         <p class="muted">تاريخ المباشرة: {{ optional($record->start_date)->format('Y-m-d') ?: '-' }}</p>
@@ -73,7 +73,7 @@
             <p class="muted">{{ $record->customer_request ?: 'لا يوجد' }}</p>
         </div>
         <div>
-            <p><strong>ملاحظات المصمم</strong></p>
+            <p><strong>ملاحظات الموظفة</strong></p>
             <p class="muted">{{ $record->designer_notes ?: 'لا يوجد' }}</p>
         </div>
     </div>
@@ -126,7 +126,7 @@
 </section>
 
 <section class="panel" style="margin-top:16px">
-    <h2>ملاحظات الأداء والعمل</h2>
+    <h2>السجلات والملاحظات</h2>
     <div class="grid">
         @forelse($record->activityLogs as $log)
             <div class="timeline-item">

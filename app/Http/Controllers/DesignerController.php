@@ -32,7 +32,7 @@ class DesignerController extends Controller
     {
         return view('designers.form', [
             'designer' => new Designer([
-                'job_title' => 'مصمم / مصممة',
+                'job_title' => 'مصممة',
                 'trial_period' => '3 أشهر',
                 'current_month' => 'month1',
                 'status' => 'active',
@@ -47,7 +47,7 @@ class DesignerController extends Controller
 
         return redirect()
             ->route('designers.show', $designer)
-            ->with('status', 'تم إنشاء سجل المصمم. يمكن الآن إنشاء سجل تقييم له.');
+            ->with('status', 'تم إنشاء بطاقة الموظفة. يمكن الآن إضافة المتابعة الأسبوعية أو التقييم الشهري لها.');
     }
 
     public function show(Designer $designer): View
@@ -72,15 +72,15 @@ class DesignerController extends Controller
 
         return redirect()
             ->route('designers.show', $designer)
-            ->with('status', 'تم تحديث بيانات المصمم.');
+            ->with('status', 'تم تحديث بطاقة الموظفة.');
     }
 
     public function destroy(Designer $designer): RedirectResponse
     {
-        abort_if($designer->records()->exists(), 422, 'لا يمكن حذف مصمم لديه سجلات تقييم.');
+        abort_if($designer->records()->exists(), 422, 'لا يمكن حذف موظفة لديها نشاط مرتبط.');
         $designer->delete();
 
-        return redirect()->route('designers.index')->with('status', 'تم حذف المصمم.');
+        return redirect()->route('designers.index')->with('status', 'تم حذف بطاقة الموظفة.');
     }
 
     private function validated(Request $request, ?Designer $designer = null): array
