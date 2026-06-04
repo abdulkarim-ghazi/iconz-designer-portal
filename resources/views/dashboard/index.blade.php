@@ -16,24 +16,24 @@
         <h1>{{ $isAdmin ? 'مراقبة أداء المصممين' : 'لوحة متابعة المصممين' }}</h1>
         <p class="muted">
             @if($isAdmin)
-                المدير العام يراجع البيانات التي ينشئها مدير التصميم: ملفات المتابعة، المتابعات الأسبوعية، ملاحظات الأداء، الوثائق، وسجل التغييرات.
+                المدير العام يراجع البيانات التي ينشئها مدير التصميم: سجلات التقييم، المتابعات الأسبوعية، ملاحظات الأداء، الوثائق، وسجل التغييرات.
             @else
-                مدير التصميم ينشئ المصممين وملفات المتابعة، ثم يضيف المتابعة الأسبوعية وملاحظات الأداء والوثائق الداعمة.
+                مدير التصميم ينشئ المصممين وسجلات التقييم، ثم يضيف المتابعة الأسبوعية وملاحظات الأداء والوثائق الداعمة.
             @endif
         </p>
     </div>
     <div class="actions">
         @if($canManage)
-            <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+            <a class="btn primary" href="{{ route('records.create') }}">إنشاء سجل تقييم</a>
             <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
         @endif
-        <a class="btn" href="{{ route('records.index') }}">كل ملفات المتابعة</a>
+        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
     </div>
 </header>
 
 <div class="grid metrics">
     <div class="card metric"><span>المصممون المسجلون</span><strong>{{ $totalDesigners }}</strong></div>
-    <div class="card metric"><span>ملفات المتابعة</span><strong>{{ $totalRecords }}</strong></div>
+    <div class="card metric"><span>سجلات التقييم</span><strong>{{ $totalRecords }}</strong></div>
     <div class="card metric"><span>متابعات أسبوعية</span><strong>{{ $weeklyEntriesCount }}</strong></div>
     <div class="card metric"><span>ملاحظات أداء</span><strong>{{ $activityLogsCount }}</strong></div>
 </div>
@@ -42,8 +42,8 @@
     <div class="grid three" style="margin-top:16px">
         <a class="panel module-card" href="{{ route('records.create') }}">
             <span class="eyebrow">01</span>
-            <h2>إنشاء ملف متابعة</h2>
-            <p class="muted">اربط مصمماً موجوداً بفترة متابعة أو مشروع. هذا ليس إنشاء مصمم جديد.</p>
+            <h2>إنشاء سجل تقييم</h2>
+            <p class="muted">افتح دورة تقييم لمصمم موجود. هذا ليس إنشاء مصمم جديد.</p>
         </a>
         <a class="panel module-card" href="{{ route('designers.index') }}">
             <span class="eyebrow">02</span>
@@ -53,12 +53,12 @@
         <a class="panel module-card" href="{{ route('modules.index', 'weekly-followup') }}">
             <span class="eyebrow">03</span>
             <h2>المتابعة الأسبوعية</h2>
-            <p class="muted">اختر ملف متابعة ثم أضف متابعة الأسبوع والملفات الداعمة.</p>
+            <p class="muted">اختر المصمم أو سجل التقييم ثم أضف متابعة الأسبوع والملفات الداعمة.</p>
         </a>
         <a class="panel module-card" href="{{ route('modules.index', 'performance-notes') }}">
             <span class="eyebrow">04</span>
             <h2>ملاحظات الأداء والعمل</h2>
-            <p class="muted">اربط ملاحظة أداء أو خطأ أو نقطة إيجابية بمصمم وملف متابعة محدد.</p>
+            <p class="muted">اربط ملاحظة أداء أو خطأ أو نقطة إيجابية بمصمم وسجل تقييم محدد.</p>
         </a>
         <a class="panel module-card" href="{{ route('modules.index', 'monthly-evaluation') }}">
             <span class="eyebrow">05</span>
@@ -72,15 +72,15 @@
         </a>
         <a class="panel module-card" href="{{ route('records.index') }}">
             <span class="eyebrow">07</span>
-            <h2>كل ملفات المتابعة</h2>
-            <p class="muted">الملف الكامل يجمع البيانات والمتابعة والملاحظات والوثائق وسجل التغييرات.</p>
+            <h2>كل سجلات التقييم</h2>
+            <p class="muted">السجل الكامل يجمع المتابعة والملاحظات والتقييمات والوثائق وسجل التغييرات.</p>
         </a>
     </div>
 @else
     <section class="panel" style="margin-top:16px">
         <h2>نطاق صلاحية الأدمن</h2>
         <div class="grid three">
-            <div class="timeline-item"><strong>يراقب</strong><p class="muted">كل ملفات المتابعة والنتائج والوثائق وسجل التغييرات.</p></div>
+            <div class="timeline-item"><strong>يراقب</strong><p class="muted">كل سجلات التقييم والنتائج والوثائق وسجل التغييرات.</p></div>
             <div class="timeline-item"><strong>يراجع</strong><p class="muted">من أضاف البيانات ومتى، وما الذي تغير داخل كل ملف.</p></div>
             <div class="timeline-item"><strong>لا ينشئ بيانات تشغيلية</strong><p class="muted">إنشاء المصممين والمتابعات وظيفة مدير التصميم.</p></div>
         </div>
@@ -113,7 +113,7 @@
                         <td>{{ $record->weekly_entries_count }}</td>
                         <td>{{ $record->activity_logs_count }}</td>
                         <td>{{ $record->documents_count }}</td>
-                        <td><a class="btn" href="{{ route('records.show', $record) }}">الملف الكامل</a></td>
+                        <td><a class="btn" href="{{ route('records.show', $record) }}">السجل الكامل</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="8" class="muted">لا توجد نتائج بعد.</td></tr>
@@ -142,7 +142,7 @@
 @endif
 
 <section class="panel" style="margin-top:16px">
-    <h2>آخر ملفات المتابعة</h2>
+    <h2>آخر سجلات التقييم</h2>
     <div class="table-wrap">
         <table>
             <thead><tr><th>المصمم</th><th>الزبون</th><th>المشروع</th><th>الحالة</th><th>أنشأه</th><th>وثائق</th><th>آخر تحديث</th></tr></thead>
@@ -158,7 +158,7 @@
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
+                    <tr><td colspan="7" class="muted">لا توجد سجلات تقييم بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

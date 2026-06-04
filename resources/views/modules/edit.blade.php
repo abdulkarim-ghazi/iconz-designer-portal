@@ -31,7 +31,7 @@
     </div>
     <div class="actions">
         <a class="btn" href="{{ route('modules.index', $module) }}">رجوع للموديول</a>
-        <a class="btn" href="{{ route('records.show', $record) }}">الملف الكامل</a>
+        <a class="btn" href="{{ route('records.show', $record) }}">السجل الكامل</a>
     </div>
 </header>
 
@@ -47,7 +47,7 @@
         @if($module === 'designer-data')
             <section class="panel">
                 <h2>بيانات المصمم</h2>
-                <p class="muted">هذا القسم يضعه مدير التصميم، وأي تغيير يظهر داخل الملف الكامل وسجل التغييرات.</p>
+                <p class="muted">هذا القسم يضعه مدير التصميم، وأي تغيير يظهر داخل السجل الكامل وسجل التغييرات.</p>
                 <div class="form-grid">
                     <div class="field">
                         <label>المصمم</label>
@@ -72,7 +72,7 @@
         @if($module === 'weekly-followup')
             <section class="panel">
                 <h2>متابعة المصمم الأسبوعية</h2>
-                <p class="muted">يضعها مدير التصميم لمصمم معين، وترتبط بنفس ملف المتابعة والزبون أو المشروع.</p>
+                <p class="muted">يضعها مدير التصميم لمصمم معين، وترتبط بنفس سجل التقييم والزبون أو المشروع.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>الأسبوع</th><th>المشروع</th><th>نقطة إيجابية</th><th>نقطة سلبية</th><th>مرونة</th><th>خطأ إنتاجي</th><th>ملاحظة مدير التصميم</th></tr></thead>
@@ -180,7 +180,7 @@
         @if(in_array($module, ['weekly-followup', 'performance-notes', 'monthly-evaluation', 'management-decision'], true))
             <section class="panel">
                 <h2>ملفات أو صور داعمة</h2>
-                <p class="muted">ارفع صوراً أو PDF أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل الملف الكامل للمصمم.</p>
+                <p class="muted">ارفع صوراً أو PDF أو ملفات مرتبطة بهذه المتابعة أو الملاحظة. ستظهر داخل السجل الكامل للمصمم.</p>
                 <div class="form-grid">
                     <div class="field"><label>عنوان الملفات</label><input name="support_title" placeholder="مثال: صورة خطأ، ملف موافقة، لقطة متابعة"></div>
                     <div class="field"><label>اختيار الملفات</label><input type="file" name="support_files[]" multiple></div>

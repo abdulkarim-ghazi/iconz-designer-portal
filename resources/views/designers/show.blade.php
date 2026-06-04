@@ -18,7 +18,7 @@
     <div class="actions">
         @if($canManage)
             <a class="btn primary" href="{{ route('designers.edit', $designer) }}">تعديل بيانات المصمم</a>
-            <a class="btn" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+            <a class="btn" href="{{ route('records.create') }}">إنشاء سجل تقييم</a>
         @endif
         <a class="btn" href="{{ route('designers.index') }}">كل المصممين</a>
     </div>
@@ -26,7 +26,7 @@
 
 <div class="grid metrics">
     <div class="card metric"><span>مرحلة التقييم</span><strong>{{ $monthLabels[$designer->current_month] }}</strong></div>
-    <div class="card metric"><span>ملفات المتابعة</span><strong>{{ $designer->records_count }}</strong></div>
+    <div class="card metric"><span>سجلات التقييم</span><strong>{{ $designer->records_count }}</strong></div>
     <div class="card metric"><span>مدة المتابعة</span><strong>{{ $designer->trial_period }}</strong></div>
     <div class="card metric"><span>الحالة</span><strong>{{ $statusLabels[$designer->status] }}</strong></div>
 </div>
@@ -50,7 +50,7 @@
 </section>
 
 <section class="panel" style="margin-top:16px">
-    <h2>ملفات المتابعة المرتبطة</h2>
+    <h2>سجلات التقييم المرتبطة</h2>
     <div class="table-wrap">
         <table>
             <thead><tr><th>الزبون</th><th>المشروع</th><th>مرحلة التقييم</th><th>متوسط التقييم</th><th>آخر تحديث</th><th>فتح</th></tr></thead>
@@ -62,7 +62,7 @@
                         <td>{{ $monthLabels[$record->current_month] }}</td>
                         <td><span class="badge green">{{ $record->totalScore() }}%</span></td>
                         <td>{{ $record->updated_at->format('Y-m-d') }}</td>
-                        <td><a class="btn" href="{{ route('records.show', $record) }}">الملف الكامل</a></td>
+                        <td><a class="btn" href="{{ route('records.show', $record) }}">السجل الكامل</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="muted">لا توجد ملفات متابعة لهذا المصمم بعد.</td></tr>

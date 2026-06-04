@@ -16,7 +16,7 @@
     </div>
     <div class="actions">
         <a class="btn" href="{{ route('designers.index') }}">كل المصممين</a>
-        <a class="btn" href="{{ route('records.index') }}">ملفات المتابعة</a>
+        <a class="btn" href="{{ route('records.index') }}">سجلات التقييم</a>
     </div>
 </header>
 

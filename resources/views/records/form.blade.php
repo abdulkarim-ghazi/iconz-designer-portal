@@ -6,21 +6,21 @@
     $isCreate = $mode === 'create';
 @endphp
 
-@section('title', $isCreate ? 'إنشاء ملف متابعة' : 'تعديل ملف متابعة')
+@section('title', $isCreate ? 'إنشاء سجل تقييم' : 'تعديل سجل تقييم')
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">ملف متابعة</span>
-        <h1>{{ $isCreate ? 'إنشاء ملف متابعة' : 'تعديل ملف متابعة' }}</h1>
+        <span class="eyebrow">سجل تقييم</span>
+        <h1>{{ $isCreate ? 'إنشاء سجل تقييم' : 'تعديل سجل تقييم' }}</h1>
         <p class="muted">
             {{ $isCreate
-                ? 'اختر مصمماً من قسم المصممين ثم أنشئ له ملف متابعة. المصمم هنا ليس مستخدم نظام.'
-                : 'تعديل بيانات ملف المتابعة العامة. المتابعة الأسبوعية وملاحظات الأداء لها موديولات مستقلة.' }}
+                ? 'اختر مصمماً من قسم المصممين ثم أنشئ له سجل تقييم لفترة محددة. المصمم هنا ليس مستخدم نظام.'
+                : 'تعديل بيانات سجل التقييم العامة. المتابعة الأسبوعية وملاحظات الأداء لها موديولات مستقلة.' }}
         </p>
     </div>
     <div class="actions">
-        <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
+        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
         <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
         <a class="btn" href="{{ route('designers.index') }}">بيانات المصممين</a>
     </div>
@@ -32,7 +32,7 @@
 
 @if($designers->isEmpty())
     <div class="alert">
-        لا يوجد مصممون بعد. أضف مصمماً من قسم المصممين أولاً، ثم ارجع لإنشاء ملف المتابعة.
+        لا يوجد مصممون بعد. أضف مصمماً من قسم المصممين أولاً، ثم ارجع لإنشاء سجل تقييم.
         <a class="btn primary" href="{{ route('designers.create') }}" style="margin-right:10px">إضافة مصمم</a>
     </div>
 @endif
@@ -43,8 +43,8 @@
 
     <section class="panel">
         <span class="eyebrow">الربط الأساسي</span>
-        <h2>المصمم وملف المتابعة</h2>
-        <p class="muted">بيانات المصمم الأساسية تدار من قسم المصممين. هنا تختار المصمم وتحدد سياق ملف المتابعة فقط.</p>
+        <h2>المصمم وسجل التقييم</h2>
+        <p class="muted">بيانات المصمم الأساسية تدار من قسم المصممين. هنا تختار المصمم وتحدد سياق دورة التقييم فقط.</p>
         <div class="form-grid">
             <div class="field">
                 <label>المصمم</label>
@@ -55,7 +55,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="field"><label>اسم ظاهر داخل ملف المتابعة</label><input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}" placeholder="اختياري، اتركه فارغاً لاستخدام اسم المصمم"></div>
+            <div class="field"><label>اسم ظاهر داخل سجل التقييم</label><input name="employee_name" value="{{ old('employee_name', $record->employee_name) }}" placeholder="اختياري، اتركه فارغاً لاستخدام اسم المصمم"></div>
             @if(! $isCreate)
                 <div class="field"><label>المسمى الوظيفي</label><input name="job_title" value="{{ old('job_title', $record->job_title ?: 'مصمم / مصممة') }}" required></div>
             @endif
@@ -98,7 +98,7 @@
     @endif
 
     <div class="actions">
-        <button class="btn primary" type="submit" @disabled($designers->isEmpty())>{{ $isCreate ? 'إنشاء ملف متابعة' : 'حفظ التعديل' }}</button>
+        <button class="btn primary" type="submit" @disabled($designers->isEmpty())>{{ $isCreate ? 'إنشاء سجل تقييم' : 'حفظ التعديل' }}</button>
         <a class="btn" href="{{ route('records.index') }}">إلغاء</a>
     </div>
 </form>

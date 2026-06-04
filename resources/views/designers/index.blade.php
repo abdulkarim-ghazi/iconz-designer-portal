@@ -19,7 +19,7 @@
         @if($canManage)
             <a class="btn primary" href="{{ route('designers.create') }}">إضافة مصمم</a>
         @endif
-        <a class="btn" href="{{ route('records.index') }}">ملفات المتابعة</a>
+        <a class="btn" href="{{ route('records.index') }}">سجلات التقييم</a>
     </div>
 </header>
 

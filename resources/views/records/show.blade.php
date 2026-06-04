@@ -8,22 +8,22 @@
     $canManage = auth()->user()->canManageDesignerData();
 @endphp
 
-@section('title', 'ملف متابعة - '.$record->employee_name)
+@section('title', 'سجل تقييم - '.$record->employee_name)
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">ملف متابعة كامل</span>
+        <span class="eyebrow">سجل تقييم كامل</span>
         <h1>{{ $record->employee_name }}</h1>
         <p class="muted">{{ $record->customer_name ?: 'بدون زبون محدد' }} · {{ $record->project_name ?: 'بدون مشروع محدد' }}</p>
     </div>
     <div class="actions">
         @if($canManage)
-            <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل الملف</a>
+            <a class="btn primary" href="{{ route('records.edit', $record) }}">تعديل السجل</a>
         @endif
-        <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
+        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
         @if($canManage)
-            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف ملف المتابعة؟')">
+            <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('حذف سجل التقييم؟')">
                 @csrf @method('DELETE')
                 <button class="btn danger" type="submit">حذف</button>
             </form>

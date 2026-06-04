@@ -24,14 +24,14 @@
     </div>
     <div class="actions">
         <a class="btn" href="{{ route('designers.index') }}">قسم المصممين</a>
-        <a class="btn" href="{{ route('records.index') }}">كل الملفات</a>
+        <a class="btn" href="{{ route('records.index') }}">كل سجلات التقييم</a>
     </div>
 </header>
 
 @if($canManage && $requiresDesignerStart)
     <section class="panel" style="margin-bottom:16px">
         <h2>اختيار المصمم</h2>
-        <p class="muted">اختر المصمم أولاً. إذا لم يكن لديه ملف متابعة مفتوح، سينشئ النظام ملفاً أساسياً ويربط هذا الموديول به.</p>
+        <p class="muted">اختر المصمم أولاً. إذا لم يكن لديه سجل تقييم مفتوح، سينشئ النظام سجلاً أساسياً ويربط هذا الموديول به.</p>
         @if($designers->isEmpty())
             <div class="alert">
                 لا يوجد مصممون بعد. أضف مصمماً أولاً من قسم المصممين.
@@ -88,7 +88,7 @@
                         <td><a class="btn {{ $canManage ? 'primary' : '' }}" href="{{ route('modules.edit', [$module, $record]) }}">{{ $canManage ? 'فتح' : 'عرض' }}</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="muted">لا توجد ملفات متابعة بعد.</td></tr>
+                    <tr><td colspan="6" class="muted">لا توجد سجلات تقييم بعد.</td></tr>
                 @endforelse
             </tbody>
         </table>

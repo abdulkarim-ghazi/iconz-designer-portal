@@ -47,7 +47,7 @@ class DesignerController extends Controller
 
         return redirect()
             ->route('designers.show', $designer)
-            ->with('status', 'تم إنشاء سجل المصمم. يمكن الآن إنشاء ملف متابعة له.');
+            ->with('status', 'تم إنشاء سجل المصمم. يمكن الآن إنشاء سجل تقييم له.');
     }
 
     public function show(Designer $designer): View
@@ -77,7 +77,7 @@ class DesignerController extends Controller
 
     public function destroy(Designer $designer): RedirectResponse
     {
-        abort_if($designer->records()->exists(), 422, 'لا يمكن حذف مصمم لديه ملفات متابعة.');
+        abort_if($designer->records()->exists(), 422, 'لا يمكن حذف مصمم لديه سجلات تقييم.');
         $designer->delete();
 
         return redirect()->route('designers.index')->with('status', 'تم حذف المصمم.');

@@ -15,8 +15,8 @@ class RecordModuleController extends Controller
 {
     private array $modules = [
         'designer-data' => [
-            'title' => 'بيانات ملف المتابعة',
-            'description' => 'بيانات الملف المرتبطة بمصمم محدد. بيانات المصمم الأساسية تدار من قسم المصممين.',
+            'title' => 'بيانات سجل التقييم',
+            'description' => 'بيانات سجل التقييم المرتبطة بمصمم محدد. بيانات المصمم الأساسية تدار من قسم المصممين.',
             'owner' => 'مدير التصميم',
         ],
         'weekly-followup' => [
@@ -113,7 +113,7 @@ class RecordModuleController extends Controller
 
         return redirect()
             ->route('modules.edit', [$module, $record])
-            ->with('status', 'تم حفظ الموديول وربطه بملف المتابعة.');
+            ->with('status', 'تم حفظ الموديول وربطه بسجل التقييم.');
     }
 
     private function updateRecordData(Request $request, DesignerRecord $record): void
@@ -134,7 +134,7 @@ class RecordModuleController extends Controller
         $record->fill($data);
         $dirty = $record->getDirty();
         $record->save();
-        $this->logChange($request, $record, 'record_data_updated', 'تم تحديث بيانات ملف المتابعة.', $dirty);
+        $this->logChange($request, $record, 'record_data_updated', 'تم تحديث بيانات سجل التقييم.', $dirty);
     }
 
     private function updateWeeklyFollowup(Request $request, DesignerRecord $record): void
@@ -282,7 +282,7 @@ class RecordModuleController extends Controller
             'project_status' => 'new',
         ]);
 
-        $this->logChange($request, $record, 'created_from_module', 'تم إنشاء ملف متابعة أساسي عند اختيار المصمم من الموديول.');
+        $this->logChange($request, $record, 'created_from_module', 'تم إنشاء سجل تقييم أساسي عند اختيار المصمم من الموديول.');
 
         return $record;
     }

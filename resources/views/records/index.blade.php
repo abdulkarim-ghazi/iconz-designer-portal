@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'ملفات المتابعة')
+@section('title', 'سجلات التقييم')
 
 @php
     $statusLabels = ['new'=>'جديد','in_progress'=>'قيد العمل','waiting_customer'=>'بانتظار الزبون','sent'=>'تم الإرسال','approved'=>'معتمد','closed'=>'مغلق'];
@@ -11,13 +11,13 @@
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">موديول ملفات المتابعة</span>
-        <h1>كل ملفات المتابعة</h1>
-        <p class="muted">كل صف يمثل ملف متابعة مستقل لمصمم، ويمكن فتحه لمراجعة البيانات والمتابعات والملاحظات والوثائق وسجل التغييرات.</p>
+        <span class="eyebrow">موديول سجلات التقييم</span>
+        <h1>كل سجلات التقييم</h1>
+        <p class="muted">كل صف يمثل دورة تقييم لمصمم، ويمكن فتحه لمراجعة المتابعة الأسبوعية والملاحظات والتقييم الشهري والقرار والوثائق وسجل التغييرات.</p>
     </div>
     <div class="actions">
         @if($canManage)
-            <a class="btn primary" href="{{ route('records.create') }}">إنشاء ملف متابعة</a>
+            <a class="btn primary" href="{{ route('records.create') }}">إنشاء سجل تقييم</a>
         @endif
         <a class="btn" href="{{ route('dashboard') }}">لوحة المتابعة</a>
     </div>
