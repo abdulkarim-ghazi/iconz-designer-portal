@@ -7,7 +7,6 @@
     <div class="panel login-card">
         <div class="login-brand">
             <div class="logo"><span>i</span>Conz <small>Portal</small></div>
-            <p>دخول المدير العام للمراقبة أو مدير التصميم لإدارة المتابعات.</p>
         </div>
         <form method="POST" action="{{ route('login.store') }}" class="grid">
             @csrf
@@ -23,7 +22,6 @@
             </div>
             <label><input type="checkbox" name="remember" value="1" style="width:auto; min-height:auto"> تذكرني</label>
             <button class="btn primary" type="submit">دخول</button>
-            <p class="muted">بيانات التجربة: admin@iconz.local / password أو design-manager@iconz.local / password</p>
         </form>
     </div>
 </div>
