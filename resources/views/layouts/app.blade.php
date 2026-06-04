@@ -11,12 +11,33 @@
         @php
             $canManage = auth()->user()->canManageDesignerData();
             $isAdmin = auth()->user()->isAdmin();
+            $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
+            $routeDesigner = request()->route('designer');
+            $routeRecord = request()->route('record');
+            $quickDesigner = $routeDesigner instanceof \App\Models\Designer
+                ? $routeDesigner
+                : (($routeRecord instanceof \App\Models\DesignerRecord && $routeRecord->designer) ? $routeRecord->designer : \App\Models\Designer::latest()->first());
         @endphp
         <div class="app">
             <aside class="sidebar">
                 <div class="brand">
                     <div class="logo"><span>i</span>Conz <small>Portal</small></div>
                     <p>منظومة متابعة الموظفات، الوثائق، التقييمات، وسجل التغييرات.</p>
+                </div>
+                <div class="employee-quick">
+                    <div class="field">
+                        <label>اسم الموظفة</label>
+                        <input value="{{ $quickDesigner?->name ?: '' }}" placeholder="مثال: سارة" readonly>
+                    </div>
+                    <div class="field">
+                        <label>الشهر الحالي</label>
+                        <select disabled>
+                            @foreach($monthLabels as $key => $label)
+                                <option value="{{ $key }}" @selected(($quickDesigner?->current_month ?: 'month1') === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="quick-progress"><span style="width: {{ ['month1' => 33, 'month2' => 66, 'month3' => 100][$quickDesigner?->current_month ?: 'month1'] }}%"></span></div>
                 </div>
                 <nav class="nav">
                     <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span>الرئيسية</span><b>01</b></a>
