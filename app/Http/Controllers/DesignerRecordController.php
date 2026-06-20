@@ -31,6 +31,10 @@ class DesignerRecordController extends Controller
             ->withCount('documents')
             ->latest();
 
+        if ($request->user()->isDesigner()) {
+            $query->where('designer_id', $request->user()->designer_id);
+        }
+
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
                 $builder->where('employee_name', 'like', "%{$search}%")
@@ -258,6 +262,6 @@ class DesignerRecordController extends Controller
 
     private function ensureAccess(Request $request, DesignerRecord $record): void
     {
-        abort_unless($request->user(), 403);
+        abort_unless($request->user()?->canViewRecord($record), 403);
     }
 }

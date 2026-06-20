@@ -21,9 +21,19 @@ class DatabaseSeeder extends Seeder
             ['name' => 'مدير التصميم', 'password' => Hash::make('password'), 'role' => 'design_manager']
         );
 
-        Designer::firstOrCreate(
+        $designer = Designer::firstOrCreate(
             ['name' => 'مصممة تجريبية'],
             ['job_title' => 'مصمم / مصممة', 'trial_period' => '3 أشهر', 'current_month' => 'month1', 'status' => 'active']
+        );
+
+        User::updateOrCreate(
+            ['email' => 'designer@iconz.local'],
+            [
+                'name' => $designer->name,
+                'password' => Hash::make('password'),
+                'role' => 'designer',
+                'designer_id' => $designer->id,
+            ]
         );
     }
 }

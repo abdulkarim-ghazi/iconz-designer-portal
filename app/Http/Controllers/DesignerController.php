@@ -15,6 +15,10 @@ class DesignerController extends Controller
             ->withCount(['records'])
             ->latest();
 
+        if ($request->user()->isDesigner()) {
+            $query->whereKey($request->user()->designer_id);
+        }
+
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
                 $builder->where('name', 'like', "%{$search}%")
@@ -50,8 +54,10 @@ class DesignerController extends Controller
             ->with('status', 'تم إنشاء بطاقة الموظفة. يمكن الآن إضافة المتابعة الأسبوعية أو التقييم الشهري لها.');
     }
 
-    public function show(Designer $designer): View
+    public function show(Request $request, Designer $designer): View
     {
+        abort_unless($request->user()->canViewDesigner($designer), 403);
+
         $designer->load(['records.monthlyEvaluations']);
         $designer->loadCount(['records']);
 

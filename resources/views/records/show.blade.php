@@ -32,7 +32,7 @@
 </header>
 
 @unless($canManage)
-    <div class="module-note" style="margin-bottom:16px">أنت تشاهد الملف بوضع مراقبة الإدارة. التعديل والرفع والحذف من صلاحية مدير التصميم فقط.</div>
+    <div class="module-note" style="margin-bottom:16px">أنت تشاهد البطاقة بوضع قراءة فقط. التعديل والرفع والحذف من صلاحية مدير التصميم فقط.</div>
 @endunless
 
 <div class="grid metrics">

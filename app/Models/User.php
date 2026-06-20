@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,6 +19,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'designer_id',
         'is_active',
     ];
 
@@ -37,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(DesignerRecord::class, 'created_by');
     }
 
+    public function designer(): BelongsTo
+    {
+        return $this->belongsTo(Designer::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -47,8 +54,27 @@ class User extends Authenticatable
         return $this->role === 'design_manager';
     }
 
+    public function isDesigner(): bool
+    {
+        return $this->role === 'designer';
+    }
+
     public function canManageDesignerData(): bool
     {
         return $this->isDesignManager();
+    }
+
+    public function canViewDesigner(Designer $designer): bool
+    {
+        return $this->isAdmin()
+            || $this->isDesignManager()
+            || ($this->isDesigner() && (int) $this->designer_id === (int) $designer->id);
+    }
+
+    public function canViewRecord(DesignerRecord $record): bool
+    {
+        return $this->isAdmin()
+            || $this->isDesignManager()
+            || ($this->isDesigner() && (int) $this->designer_id === (int) $record->designer_id);
     }
 }

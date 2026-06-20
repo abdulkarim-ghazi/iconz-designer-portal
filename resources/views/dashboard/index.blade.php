@@ -7,16 +7,19 @@
     $monthLabels = ['month1' => 'الشهر الأول', 'month2' => 'الشهر الثاني', 'month3' => 'الشهر الثالث'];
     $canManage = auth()->user()->canManageDesignerData();
     $isAdmin = auth()->user()->isAdmin();
+    $isDesigner = auth()->user()->isDesigner();
 @endphp
 
 @section('content')
 <header class="topbar">
     <div>
-        <span class="eyebrow">{{ $isAdmin ? 'مركز مراقبة الإدارة' : 'مساحة عمل مدير التصميم' }}</span>
-        <h1>{{ $isAdmin ? 'مراقبة أداء الموظفات' : 'لوحة متابعة الموظفات' }}</h1>
+        <span class="eyebrow">{{ $isAdmin ? 'مركز مراقبة الإدارة' : ($isDesigner ? 'مساحة المصممة' : 'مساحة عمل مدير التصميم') }}</span>
+        <h1>{{ $isAdmin ? 'مراقبة أداء الموظفات' : ($isDesigner ? 'تقييماتي ومتابعتي' : 'لوحة متابعة الموظفات') }}</h1>
         <p class="muted">
             @if($isAdmin)
                 المدير العام يراجع البيانات التي ينشئها مدير التصميم: بطاقات الموظفات، المتابعات الأسبوعية، ملاحظات الأداء، الوثائق، وسجل التغييرات.
+            @elseif($isDesigner)
+                يمكنك مشاهدة بطاقة الموظفة الخاصة بك، Scoreboard الأسبوعي، التقييم الشهري، السجلات والملاحظات، وقرار الزيادة فقط.
             @else
                 مدير التصميم ينشئ بطاقات الموظفات، ثم يضيف المتابعة الأسبوعية وملاحظات الأداء والتقييم الشهري وقرار الزيادة.
             @endif
@@ -32,8 +35,8 @@
 </header>
 
 <div class="grid metrics">
-    <div class="card metric"><span>الموظفات المسجلات</span><strong>{{ $totalDesigners }}</strong></div>
-    <div class="card metric"><span>بطاقات نشطة</span><strong>{{ $totalRecords }}</strong></div>
+    <div class="card metric"><span>{{ $isDesigner ? 'بطاقتي' : 'الموظفات المسجلات' }}</span><strong>{{ $totalDesigners }}</strong></div>
+    <div class="card metric"><span>{{ $isDesigner ? 'أنشطة مرتبطة' : 'بطاقات نشطة' }}</span><strong>{{ $totalRecords }}</strong></div>
     <div class="card metric"><span>متابعات أسبوعية</span><strong>{{ $weeklyEntriesCount }}</strong></div>
     <div class="card metric"><span>ملاحظات أداء</span><strong>{{ $activityLogsCount }}</strong></div>
 </div>
@@ -76,7 +79,7 @@
             <p class="muted">بطاقة الموظفة تجمع المتابعة والملاحظات والتقييمات والوثائق وسجل التغييرات.</p>
         </a>
     </div>
-@else
+@elseif($isAdmin)
     <section class="panel" style="margin-top:16px">
         <h2>نطاق صلاحية الأدمن</h2>
         <div class="grid three">

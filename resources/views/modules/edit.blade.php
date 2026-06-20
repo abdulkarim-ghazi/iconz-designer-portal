@@ -40,7 +40,7 @@
     @method('PUT')
 
     @unless($canManage)
-        <div class="module-note">أنت الآن في وضع مراقبة. الأدمن يراجع البيانات، ومدير التصميم فقط يستطيع التعديل أو رفع ملفات داعمة.</div>
+        <div class="module-note">أنت الآن في وضع مشاهدة فقط. مدير التصميم فقط يستطيع التعديل أو رفع ملفات داعمة.</div>
     @endunless
 
     <fieldset @disabled(! $canManage) class="grid" style="border:0;padding:0;margin:0">

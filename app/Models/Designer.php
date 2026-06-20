@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Designer extends Model
 {
@@ -33,5 +34,10 @@ class Designer extends Model
     public function records(): HasMany
     {
         return $this->hasMany(DesignerRecord::class);
+    }
+
+    public function loginUser(): HasOne
+    {
+        return $this->hasOne(User::class);
     }
 }
